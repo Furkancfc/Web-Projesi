@@ -2,6 +2,8 @@ package webapp;
 
 import model.*;
 
+import java.io.IOException;
+import java.net.URI;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -12,12 +14,12 @@ import java.util.Map;
 import org.apache.catalina.Server;
 import org.apache.catalina.core.ApplicationContext;
 import org.apache.catalina.startup.Tomcat;
-import org.eclipse.tags.shaded.org.apache.xalan.xsltc.compiler.Template;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.context.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +29,17 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.HttpServletBean;
 
 import dao.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
-public class MainDispatcher extends DispatcherServlet{
+public class MainDispatcher extends DispatcherServlet {
 
 	private static final long serialVersionUID = -2020821112498604792L;
 	public static Map<String, Account> users;

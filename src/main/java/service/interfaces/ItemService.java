@@ -1,4 +1,4 @@
 package service.interfaces;
-public interface ItemService{
+public abstract class ItemService extends Service{
 	
 }

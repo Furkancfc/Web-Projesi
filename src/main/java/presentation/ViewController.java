@@ -1,22 +1,37 @@
 package presentation;
 
+import java.awt.datatransfer.MimeTypeParseException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.List;
+
+import org.apache.tomcat.util.http.fileupload.util.mime.MimeUtility;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.RequestEntity.HeadersBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.MimeType;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.server.i18n.AcceptHeaderLocaleContextResolver;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.function.ServerRequest.Headers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Account;
 import model.Category;
+import model.Item;
 import webapp.*;
 
 @Controller
 public class ViewController {
+
 	@Autowired
 	private service.implement.CartServiceImpl cartService;
 	@Autowired
@@ -81,7 +96,9 @@ public class ViewController {
 	 */
 	public void forward(String page, String to, HttpServletRequest req, HttpServletResponse resp) {
 		try {
-			setPage(page, req);
+			if (!(req.getRequestURI().contains(".css") || req.getRequestURI().contains(".js"))) {
+				setPage(page, req);
+			}
 			req.getRequestDispatcher(to).forward(req, resp);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -106,44 +123,64 @@ public class ViewController {
 
 	@Controller
 	class AdminController {
-		@GetMapping(path = { "/admin/**", "/admin" })
+		@GetMapping(path = { "/admin**.css", "/admin**js" })
+		public String getResource(HttpServletRequest req, HttpServletResponse resp) {
+			return String.format("forward:%s", req.getRequestURI());
+		}
+
+		@GetMapping("/admin")
+		public void getIndex(HttpServletRequest req, HttpServletResponse resp) {
+			forward("/admin/index", "/jsp/admin/layout.jsp", req, resp);
+		}
+
+		@GetMapping("/admin/**")
 		public void doGet(HttpServletRequest req, HttpServletResponse resp) {
 			forward(req.getRequestURI(), "/jsp/admin/layout.jsp", req, resp);
 		}
 
-		@PostMapping(path = { "/admin/categoryManagement", "/admin/categoryManagement/" })
+		@PostMapping(path = { "/admin/categories", "/admin/categories/" })
 		public void postManageCategory(HttpServletRequest req, HttpServletResponse resp) {
-			String name = (String) req.getAttribute("name");
-			categoryService.createCategory(new Category(name));
+			if (req.getParameter("addCategory") != null) {
+				String name = (String) req.getParameter("name");
+				if (name != null) {
+					categoryService.addCategory(new Category(name));
+					forward("/admin/categoryManagement", "/jsp/admin/layout.jsp", req, resp);
+				} else {
+					forward("/admin/categoryManagement", "/jsp/admin/layout.jsp", req, resp);
+				}
+			}
 		}
 
-		@PostMapping({ "/admin/accountManagement", "/admin/accountManagement/" })
-		public void postManageAccount() {
-
-		}
-
-		@PostMapping({ "/admin/itemManagement", "/admin/itemManagement/" })
-		public void postManageItem() {
+		@PostMapping(path = { "/admin/products", "/admin/products/" })
+		public void postProduct(HttpServletRequest req, HttpServletResponse resp) {
+			String productName = req.getParameter("product-name");
+			String productPrice = req.getParameter("product-price");
+			String photos = req.getParameter("product-photo");
+			itemService.addItem(new Item)
 		}
 	}
 
 	@Controller
 	class IndexController {
 		@GetMapping(path = { "/" })
-		public void getIndex(Model m, HttpServletRequest req, HttpServletResponse resp) {
-			m.addAttribute("categories", categoryService.getCategories());
+		public void getIndex(HttpServletRequest req, HttpServletResponse resp) {
 			forward("/index", "/jsp/template/layout.jsp", req, resp);
 		}
 
 		@GetMapping(path = { "/index**", "/index/**" })
-		public void doGet(HttpServletRequest req, HttpServletResponse resp) {
+		public void doGet(HttpServletRequest req, HttpServletResponse resp, Model m) {
 			forward(req.getRequestURI(), "/jsp/template/layout.jsp", req, resp);
+		}
+
+		@GetMapping(path = { "/index**.css", "/index**.js" })
+		public String dispatchResources(HttpServletRequest req, HttpServletResponse resp) {
+			return "forward:/jsp/template/layout.jsp";
 		}
 
 		@RequestMapping(path = { "/logout", "/logout/" })
 		public void logout(HttpSession session, HttpServletRequest req, HttpServletResponse resp) {
-			session.removeAttribute("userId");
-			forward("/index", "/jsp/template/layout.jsp", req, resp);
+			session.invalidate();
+			getIndex(req, resp);
 		}
 
 		@Controller
@@ -153,7 +190,7 @@ public class ViewController {
 				if (!checkSession(req, resp))
 					forward("/login", "/jsp/template/layout.jsp", req, resp);
 				else
-					forward("/index", "/jsp/template/layout.jsp", req, resp);
+					getIndex(req, resp);
 			}
 
 			@PostMapping("/login")
@@ -164,9 +201,9 @@ public class ViewController {
 				if (ac != null && ac.getPassword().equals(password)) {
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
-					forward("/index", "/jsp/template/layout.jsp", req, resp);
+					getIndex(req, resp);
 				} else {
-					redirect("/login", "/jsp/template/layout.jsp", req, resp);
+					forward("/login", "/jsp/template/layout.jsp", req, resp);
 				}
 			}
 		}
@@ -176,9 +213,10 @@ public class ViewController {
 			@GetMapping("/register")
 			public void getRegister(HttpServletRequest req, HttpServletResponse resp, HttpSession session) {
 				if (!checkSession(req, resp)) {
-					forward("signup", "/jsp/template/layout.jsp", req, resp);
-				} else
-					redirect("/index", "/jsp/template/layout.jsp", req, resp);
+					forward("/signup", "/jsp/template/layout.jsp", req, resp);
+				} else {
+					getIndex(req, resp);
+				}
 			}
 
 			@PostMapping("/register")
@@ -192,11 +230,41 @@ public class ViewController {
 					MainDispatcher.putUser(ac);
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
-					forward("/index", "/jsp/template/layout.jsp", req, resp);
+					getIndex(req, resp);
 				} else {
 					forward("/signup", "/jsp/template/layout.jsp", req, resp);
 				}
 			}
 		}
 	}
+
+	public class AdminInterceptor implements HandlerInterceptor {
+		@Override
+		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+				throws Exception {
+			HttpSession session = request.getSession();
+			if (session != null && session.getAttribute("auth") != null && session.getAttribute("auth").equals("admin"))
+				return HandlerInterceptor.super.preHandle(request, response, handler);
+			else {
+				request.getRequestDispatcher(DispatcherServlet.SERVLET_CONTEXT_PREFIX + "error/404.jsp")
+						.forward(request, response);
+				return false;
+			}
+		}
+	}
+
+	public class MainInterceptor implements HandlerInterceptor {
+		@Override
+		public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object handler) throws Exception {
+			System.out.printf("===REQUEST===\nTIMESTAMP : %s\nMETHOD : %s\nREQUEST URI : %s\n",
+					Instant.now().atOffset(ZoneOffset.UTC), req.getMethod(), req.getRequestURI());
+			req.getServletContext().setAttribute("categoryService", categoryService);
+			req.getServletContext().setAttribute("userService", userService);
+			req.getServletContext().setAttribute("cartService", cartService);
+			req.getServletContext().setAttribute("itemService", itemService);
+			return HandlerInterceptor.super.preHandle(req, resp, handler);
+		}
+
+	}
+
 }

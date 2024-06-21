@@ -1,4 +1,5 @@
 package service.implement;
+import model.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -8,25 +9,25 @@ import org.springframework.stereotype.Service;
 import model.CartItem;
 
 @Service
-public class CartServiceImpl implements service.interfaces.CartService {
+public class CartServiceImpl extends service.interfaces.CartService {
 	@Autowired
-	private dao.implement.CartDaoImpl cartDao;
+	public dao.implement.CartDaoImpl cartDao;
 
-	public void incrementCartItem(model.CartItem ci) {
-		cartDao.incrementCartItem(ci);
+	public void incrementCartItem(Cart c, CartItem ci) {
+		cartDao.incrementCartItem(c,ci);
 	}
 
-	public void decrementCartItem(model.CartItem ci) {
-		cartDao.decrementCartItem(ci);
-	}
-
-	@Override
-	public void removeCartItem(model.CartItem ci) {
-		cartDao.removeCartItem(ci);
+	public void decrementCartItem(Cart c,CartItem ci) {
+		cartDao.decrementCartItem(c,ci);
 	}
 
 	@Override
-	public void addCartItem(model.CartItem ci) {
-		cartDao.addCartItem(ci);
+	public void removeCartItem(Cart c,CartItem ci) {
+		cartDao.removeCartItem(c,ci);
+	}
+
+	@Override
+	public void addCartItem(Cart c,CartItem ci) {
+		cartDao.addCartItem(c,ci);
 	}
 }

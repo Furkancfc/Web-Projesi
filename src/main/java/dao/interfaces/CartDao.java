@@ -8,21 +8,31 @@ import java.util.Map;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import dao.interfaces.CategoryDao.CategoryMapper;
 import model.*;
 import model.interfaces.*;
 
-public interface CartDao extends dao.Dao<Cart> {
+public abstract class CartDao extends Dao<Cart> {
 
-	public void addCartItem(model.Cart c ,model.CartItem ci);
+	public abstract void addCartItem(model.Cart c, model.CartItem ci);
 
-	public void removeCartItem(model.Cart c, model.CartItem ci);
+	public abstract void removeCartItem(model.Cart c, model.CartItem ci);
 
-	public void incrementCartItem(model.Cart c, model.CartItem ci);
+	public abstract void incrementCartItem(model.Cart c, model.CartItem ci);
 
-	public void decrementCartItem(model.Cart c, model.CartItem ci);
+	public abstract void decrementCartItem(model.Cart c, model.CartItem ci);
+
+	public abstract CartItem getCartItem(model.Cart c, String itemId);
+
+	public abstract CartItem getCartItem(model.Cart c, model.CartItem item);
+
+	public abstract Map<String, CartItem> getCartItems(model.Cart c);
+
+	public abstract void getCart(model.Cart c);
+
+	public abstract void getCart(String cartId);
 
 	public class CartItemRowMapper implements RowMapper<CartItem> {
-
 		@Override
 		public CartItem mapRow(ResultSet rs, int rowNum) throws SQLException {
 			CartItem ci;

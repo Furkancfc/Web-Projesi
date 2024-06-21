@@ -1,5 +1,5 @@
 package service.interfaces;
 
-public interface CategoryService {
-	public void addCategory(model.Category category);
+public abstract class CategoryService extends Service{
+	public abstract void addCategory(model.Category category);
 }

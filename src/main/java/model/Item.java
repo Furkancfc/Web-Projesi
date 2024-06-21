@@ -16,8 +16,10 @@ public class Item implements IItem {
 	private Instant createTime; // create time
 	private Instant lastUpdate; // write access
 	private Instant lastAccess; // read access
+	private String categoryName;
+	private String price;
 
-	public Item(String title, String shortDesc, String longDesc) {
+	public Item(String title, String shortDesc, String longDesc, String categoryName,String price) {
 		this.itemId = MainDispatcher.createRandomId();
 		if (title == null) {
 			System.err.println("Title cannot be null");
@@ -30,6 +32,7 @@ public class Item implements IItem {
 		this.createTime = Instant.now();
 		this.lastUpdate = Instant.now();
 		this.lastAccess = null;
+		this.categoryName = categoryName;
 	}
 
 	// getters
@@ -73,6 +76,18 @@ public class Item implements IItem {
 		return title;
 	}
 
+	public String getCategoryName() {
+		return categoryName;
+	}
+
+	public String[] getImageURIs() {
+		return imageURIs;
+	}
+
+	public String getPrice() {
+		return price;
+	}
+
 	// setters
 	public void setImageURI(String[] imageURIs) {
 		this.lastUpdate = Instant.now();
@@ -92,5 +107,33 @@ public class Item implements IItem {
 	public void setTitle(String title) {
 		this.lastUpdate = Instant.now();
 		this.title = title;
+	}
+
+	public void setCreateTime(Instant createTime) {
+		this.createTime = createTime;
+	}
+
+	public void setImageURIs(String[] imageURIs) {
+		this.imageURIs = imageURIs;
+	}
+
+	public void setItemId(String itemId) {
+		this.itemId = itemId;
+	}
+
+	public void setLastAccess(Instant lastAccess) {
+		this.lastAccess = lastAccess;
+	}
+
+	public void setLastUpdate(Instant lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
+
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
+	}
+
+	public void setPrice(String price) {
+		this.price = price;
 	}
 }

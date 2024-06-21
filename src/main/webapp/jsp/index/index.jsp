@@ -1,9 +1,11 @@
+<%@page import="org.springframework.beans.factory.annotation.Autowired"%>
+<%@page import="org.springframework.web.servlet.ModelAndView"%>
+<%@page import="org.springframework.ui.Model"%>
+<%@page import="org.springframework.ui.ModelMap"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql"%>
 <%@page
 	import="org.springframework.jdbc.datasource.DriverManagerDataSource"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql"%>
 <%@page
 	import="org.springframework.context.support.ClassPathXmlApplicationContext"%>
 <%@page import="org.apache.catalina.core.ApplicationContext"%>
@@ -18,6 +20,9 @@
 <%@page import="webapp.MainDispatcher"%>
 <%@page import="model.Category"%>
 <%@page import="java.util.List"%>
+<%@page import="service.implement.*"%>
+<%@page import="service.implement.CategoryServiceImpl"%>
+<%@page import="java.util.*"%>
 <div class='container mx-auto'>
 	<nav class='navbar border bg-[#fef9c3]'>
 		<a class='navbar-brand' href='index'>E-Trade</a>
@@ -48,10 +53,16 @@
 	</nav>
 	<nav class='category-navs navbar border'>
 		<ul class='navbar-nav'>
-			<c:forEach items="${categories}" var="category">
-				<li class='nav-item'><a href="${category.getName()}"
-					class='nav-link'>${category.getName()}</a></li>
-			</c:forEach>
+			<%
+			for (Category c : (List<Category>) ((CategoryServiceImpl) application.getAttribute("categoryService"))
+					.getCategories()) {
+			%>
+			<li class='nav-item'><a
+				href="?categoryName=
+						<%=c.getName()%>" class='nav-link'><%=c.getName()%></a></li>
+			<%
+			}
+			%>
 		</ul>
 	</nav>
 	<div class='content-body'></div>

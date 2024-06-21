@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,25 +29,8 @@ import dao.interfaces.CartDao;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 @Repository
-public class CartDaoImpl implements CartDao {
-	public JdbcTemplate getTemplate() {
-		return template;
-	}
-
-	@Autowired
-	public JdbcTemplate setTemplate(JdbcTemplate template) {
-		this.template = template;
-		return this.template;
-	}
-
-	@Autowired
-	public void setDataSource(DriverManagerDataSource ds) {
-		template.setDataSource(ds);
-	}
-
+public class CartDaoImpl extends CartDao {
 	private String userId;
-	@Autowired
-	private JdbcTemplate template;
 
 	@Override
 	public Cart create(Cart c) {
@@ -59,6 +43,7 @@ public class CartDaoImpl implements CartDao {
 					ps.setBlob(1, new Blob(IGeneric.getBytes(c.getItems()), null));
 					ps.setBigDecimal(2, new BigDecimal(c.getLastUpdate().toEpochMilli()));
 					ps.setBlob(3, new Blob(IGeneric.getBytes(c), null));
+					ps.execute();
 					return c;
 				} catch (Exception e) {
 					return null;
@@ -69,19 +54,8 @@ public class CartDaoImpl implements CartDao {
 	}
 
 	@Override
-	public Cart delete(Cart c) {
-		String sql = "delete from Cart where cartId=(?)";
-		return template.execute(sql, new PreparedStatementCallback<Cart>() {
-			@Override
-			public Cart doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
-				try {
-					ps.setString(0, c.getCartId());
-					return c;
-				} catch (Exception e) {
-					return null;
-				}
-			}
-		});
+	public void delete(Cart c) {
+		delete(c.getCartId());
 	}
 
 	public Cart update(Cart c) {
@@ -95,6 +69,7 @@ public class CartDaoImpl implements CartDao {
 					ps.setBigDecimal(2, new BigDecimal(c.getLastUpdate().toEpochMilli()));
 					ps.setBlob(3, new Blob(IGeneric.getBytes(c), null));
 					ps.setString(4, c.getCartId());
+					ps.execute();
 					return c;
 				} catch (Exception e) {
 					return null;
@@ -135,6 +110,7 @@ public class CartDaoImpl implements CartDao {
 					ps.setInt(2, ci.getItemCount());
 					ps.setBlob(3, new Blob(IGeneric.getBytes(ci.getItem()), null));
 					ps.setBlob(4, new Blob(IGeneric.getBytes(ci), null));
+					ps.execute();
 					return 0;
 
 				} catch (Exception e) {
@@ -152,6 +128,7 @@ public class CartDaoImpl implements CartDao {
 			@Override
 			public Cart doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				ps.setString(0, cartId);
+				ps.execute();
 				return null;
 
 			}
@@ -165,14 +142,73 @@ public class CartDaoImpl implements CartDao {
 			@Override
 			public Cart doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				ps.setString(0, c.getCartId());
+				ps.execute();
 				return null;
 			}
 		});
 	}
 
 	@Override
-	public List<Cart> display() {
-		String sql = "select * from Cart";
-		return template.query(sql, new CartRowMapper());
+	public CartItem getCartItem(Cart c, String itemId) {
+		String sql = "select * from Cart as c, CartItem as ci where c.cartId=(?) and ci.itemId=(?)";
+
+		return template.execute(sql, new PreparedStatementCallback<CartItem>() {
+
+			@Override
+			public CartItem doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(0, c.getCartId());
+				ps.setString(1, itemId);
+				ResultSet rs = ps.executeQuery();
+				return new CartItemRowMapper().mapRow(rs, rs.getRow());
+			}
+		});
+
 	}
+
+	@Override
+	public CartItem getCartItem(Cart c, CartItem item) {
+		return getCartItem(c, item.getItemId());
+	}
+
+	@Override
+	public void getCart(Cart c) {
+		getCart(c.getCartId());
+	}
+
+	@Override
+	public void getCart(String cartId) {
+		String sql = String.format("select * from Cart where cartId=\"%s\"", cartId);
+		template.queryForObject(sql, new CartRowMapper());
+	}
+
+	@Override
+	public Map<String, CartItem> getCartItems(Cart c) {
+		String sql = "select * from Cart where cartId=(?)";
+		return template.execute(sql, new PreparedStatementCallback<Map<String, CartItem>>() {
+			@Override
+			public Map<String, CartItem> doInPreparedStatement(PreparedStatement ps)
+					throws SQLException, DataAccessException {
+				ps.setString(1, c.getCartId());
+				ResultSet rs = ps.executeQuery();
+				return new CartRowMapper().mapRow(rs, rs.getRow()).getItems();
+			}
+		});
+	}
+
+	@Override
+	public void delete(String tId) {
+		String sql = "delete from Cart where cartId=(?)";
+		template.execute(sql, new PreparedStatementCallback<Cart>() {
+			@Override
+			public Cart doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				try {
+					ps.setString(0, tId);
+					ps.execute();
+				} catch (Exception e) {
+				}
+				return null;
+			}
+		});
+	}
+
 }

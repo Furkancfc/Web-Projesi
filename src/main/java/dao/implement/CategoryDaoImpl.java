@@ -19,88 +19,117 @@ import org.springframework.stereotype.*;
 import dao.interfaces.CategoryDao;
 import model.Category;
 import model.Item;
+import model.interfaces.IGeneric;
 
 @Repository
-public class CategoryDaoImpl implements CategoryDao {
-	@Autowired
-	public CategoryDaoImpl(JdbcTemplate template) {
-		this.template = template;
-	}
-
-	@Autowired
-	public void setDataSource(DriverManagerDataSource ds) {
-		template.setDataSource(ds);
-	}
-
-	@Autowired
-	private JdbcTemplate template;
-
-	public JdbcTemplate getTemplate() {
-		return template;
-	}
-
-	@Autowired
-	public JdbcTemplate setTemplate(JdbcTemplate template) {
-		this.template = template;
-		return this.template;
-	}
-
+public class CategoryDaoImpl extends CategoryDao {
 	public List<Category> getCategories() {
-		System.out.println("Quering Categories from DB");
 		String sql = "select * from Category";
-		return template.queryForList(sql, Category.class);
+		return template.query(sql, new CategoryMapper());
 	}
 
-	@Override
-	public void addCategory(model.Category category) {
-		System.out.println("Adding Category to DB");
-		String sql = "insert into Category values ((?),(?),(?),(?),(?))";
-		template.execute(sql, new PreparedStatementCallback<Integer>() {
-
+	public Category getCategory(Category c) {
+		String sql = "select * from categoryId=(?)";
+		return template.execute(sql, new PreparedStatementCallback<Category>() {
 			@Override
-			public Integer doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
-				ps.setString(0, category.getName());
-				ps.setString(1, category.getCategoryId());
-				ps.setInt(2, category.getItemCount());
-				ps.setBlob(3, (Blob) category.getItems());
-				ps.setBlob(4, (Blob) category);
-				return ps.executeUpdate();
+			public Category doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, c.getCategoryId());
+				ResultSet rs = ps.executeQuery();
+				return new CategoryMapper().mapRow(rs, rs.getRow());
+			}
+		});
+	}
+
+	public Category getCategory(String c) {
+		String sql = "select * from name=(?)";
+		return template.execute(sql, new PreparedStatementCallback<Category>() {
+			@Override
+			public Category doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, c);
+				ResultSet rs = ps.executeQuery();
+				return new CategoryMapper().mapRow(rs, rs.getRow());
 			}
 		});
 	}
 
 	@Override
-	public List<Category> display() {
-		String sql = "select * from Category";
-		return template.query(sql, new dao.interfaces.CategoryDao.CategoryMapper());
+	public Category addCategory(model.Category object) {
+		System.out.println("Adding Category to DB");
+		String sql = "insert into Category values ((?),(?),(?),(?),(?))";
+		template.execute(sql, new PreparedStatementCallback<Boolean>() {
+
+			@Override
+			public Boolean doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, object.getName());
+				ps.setString(2, object.getCategoryId());
+				ps.setInt(3, object.getItemCount());
+				ps.setBytes(4, IGeneric.getBytes(object.getItems()));
+				ps.setBytes(5, IGeneric.getBytes(object));
+				return ps.execute();
+			}
+		});
+		return object;
 	}
 
 	@Override
-	public Category display(Category object) {
+	public void deleteCategory(model.Category object) {
+		String sql = "delete from Category where name=(?)";
+		template.execute(sql, new PreparedStatementCallback<Boolean>() {
+			@Override
+			public Boolean doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, object.getName());
+				return ps.execute();
+			}
+		});
+	}
 
+	public void deleteCategory(String objectId) {
+		String sql = "delete from Category where name=(?)";
+		template.execute(sql, new PreparedStatementCallback<Boolean>() {
+			@Override
+			public Boolean doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, objectId);
+				return ps.execute();
+			}
+		});
+	}
+
+	@Override
+	public Category updateCategory(model.Category object) {
+		String sql = "update Category where name=(?)";
+		template.update(sql);
+		return object;
+	}
+
+	@Override
+	public Category display(Category t) {
 		return null;
 	}
 
 	@Override
 	public Category display(String id) {
+
 		return null;
 	}
 
 	@Override
-	public Category create(Category object) {
-		// TODO Auto-generated method stub
-		return null;
+	public void delete(Category t) {
+		deleteCategory(t);
 	}
 
 	@Override
-	public Category delete(Category object) {
-		// TODO Auto-generated method stub
-		return null;
+	public Category create(Category t) {
+		return addCategory(t);
 	}
 
 	@Override
-	public Category update(Category object) {
-		// TODO Auto-generated method stub
-		return null;
+	public Category update(Category t) {
+		return updateCategory(t);
 	}
+
+	@Override
+	public void delete(String tId) {
+		deleteCategory(tId);
+	}
+
 }
