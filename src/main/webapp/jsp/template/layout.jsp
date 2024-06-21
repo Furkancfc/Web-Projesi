@@ -1,3 +1,4 @@
+<%@page import="service.implement.CategoryServiceImpl"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql"%>
 <html>
@@ -24,8 +25,9 @@
 	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js"
 	integrity="sha512-+k1pnlgt4F1H8L7t3z95o3/KO+o78INEcXTbnoJQ/F2VqDVhWoaiVml/OEHv9HsVgxUaVW+IbiZPUJQfF/YxZw=="
 	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script scr='js/main/layout.js'></script>
-<script src='js/main/site.js'></script>
+<link rel="stylesheet" href="css/layout.css"/>
+<script scr='js/layout.js'></script>
+<script src='js/site.js'></script>
 <%@ include file="header.jsp"%>
 <%
 try {

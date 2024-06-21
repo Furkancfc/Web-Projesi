@@ -1,11 +1,14 @@
 package service.interfaces;
 
-public interface CartService {
-	public void incrementCartItem(model.CartItem ci);
+import model.*;
 
-	public void decrementCartItem(model.CartItem ci);
+public abstract class CartService extends Service {
 
-	public void removeCartItem(model.CartItem ci);
+	public abstract void incrementCartItem(Cart c, CartItem ci);
 
-	public void addCartItem(model.CartItem ci);
+	public abstract void decrementCartItem(Cart c, CartItem ci);
+
+	public abstract void removeCartItem(Cart c, CartItem ci);
+
+	public abstract void addCartItem(Cart c, CartItem ci);
 }

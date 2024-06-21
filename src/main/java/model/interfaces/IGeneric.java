@@ -6,9 +6,7 @@ public interface IGeneric<T> extends Serializable {
 
 	public static Object getInstance(byte[] bytes) {
 		try {
-			ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-			ObjectInputStream ois = new ObjectInputStream(bais);
-			return ois.readObject();
+			return org.apache.commons.lang3.SerializationUtils.deserialize(bytes);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -17,11 +15,7 @@ public interface IGeneric<T> extends Serializable {
 
 	public static byte[] getBytes(Object obj) {
 		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject((Object) obj);
-			byte[] bytes = baos.toByteArray();
-			return bytes;
+			return org.apache.commons.lang3.SerializationUtils.serialize((Serializable) obj);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -30,11 +24,7 @@ public interface IGeneric<T> extends Serializable {
 
 	public static String getBytesAsString(Object obj) {
 		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject((Object) obj);
-			byte[] bytes = baos.toByteArray();
-			return bytes.toString();
+			return new String(org.apache.commons.lang3.SerializationUtils.serialize((Serializable) obj));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

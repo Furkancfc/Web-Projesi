@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.*;
 
 import model.interfaces.*;
+
 public class Category implements ICategory {
 
 	private static final long serialVersionUID = 1L;
@@ -32,8 +33,8 @@ public class Category implements ICategory {
 		return categoryId;
 	}
 
-	public Collection<Item> getItems() {
-		return itemsIds.values();
+	public Map<String, Item> getItems() {
+		return itemsIds;
 	}
 
 	public Item getItem(String itemId) {
@@ -55,6 +56,10 @@ public class Category implements ICategory {
 
 	public void setItemIds(Map<String, Item> items) {
 		this.itemsIds = items;
+	}
+
+	public void setItemsIds(Map<String, Item> itemsIds) {
+		this.itemsIds = itemsIds;
 	}
 
 	public void addItem(Item item) {

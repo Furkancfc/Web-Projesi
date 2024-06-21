@@ -4,36 +4,35 @@
 <head>
 <c:import url="head.jsp" />
 <c:catch>
+	<link rel='stylessheet' href="${pageCss}" />
+</c:catch>
+<c:catch>
+	<script src="${pageJs}" /></script>
+</c:catch>
+<c:catch>
 	<c:import url="${pageHead}" />
 </c:catch>
-<link rel='stylessheet' href="<c:url value="${pageCss}"/>" />
-<script src="<c:url value="${pageJs}"/>"></script>
-<link rel="stylesheet" href="css/admin/layout.css" />
-<script src="js/admin/layout.js"></script>
+<link rel="stylesheet" href="/css/admin/style.css" />
+<script src='/js/admin/layout.js'></script>
 </head>
 <body>
+
 	<div class='container mx-0 p-0'>
-		<nav class='navbar'>
-			<div class='navbar-nav'>
-				<div class='nav-item top'>
-					<img src="/favicon.ico" />
-				</div>
-				<div class='nav-item'>
-					<a href="#" class="nav-link">Category Management</a>
-				</div>
-				<div class='nav-item'>
-					<a href="#" class="nav-link">Account Management</a>
-				</div>
-				<div class='nav-item'>
-					<a href="#" class='nav-link'>Item Management</a>
-				</div>
-			</div>
-		</nav>
-		<div class='content'>
-			<c:catch>
-				<c:import url="${pageContent}" />
-			</c:catch>
-		</div>
+		<header>
+			<h1>Admin Dashboard</h1>
+			<nav>
+				<ul>
+					<li><a href="/admin/dashboard">Dashboard</a></li>
+					<li><a href="/admin/products">Products</a></li>
+					<li><a href="/admin/orders">Orders</a></li>
+					<li><a href="/admin/users">Users</a></li>
+				</ul>
+			</nav>
+		</header>
+		${pageContent }
+		<c:catch>
+			<jsp:include page="${pageContent}" />
+		</c:catch>
 	</div>
 </body>
 

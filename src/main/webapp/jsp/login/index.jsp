@@ -1,7 +1,7 @@
 <body>
 	<div class="login-container">
 		<h2>Login</h2>
-		<form action="/project2/login" method="post">
+		<form action="login" method="post">
 			<div class="input-group">
 				<label for="email">Email</label> <input type="text" id="email"
 					name="email" required>

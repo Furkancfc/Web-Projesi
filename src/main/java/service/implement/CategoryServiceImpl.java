@@ -1,17 +1,24 @@
 package service.implement;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import dao.implement.CategoryDaoImpl;
 import model.Category;
+import model.Item;
 
 @Service
-public class CategoryServiceImpl implements service.interfaces.CategoryService {
+public class CategoryServiceImpl extends service.interfaces.CategoryService {
 	@Autowired
 	public dao.implement.CategoryDaoImpl categoryDao;
+
+	public CategoryServiceImpl() {
+		super();
+	}
 
 	@Override
 	public void addCategory(Category category) {
@@ -22,15 +29,15 @@ public class CategoryServiceImpl implements service.interfaces.CategoryService {
 		return categoryDao.getCategories();
 	}
 
-	public void createCategory(Category c) {
-		categoryDao.create(c);
+	public void updateCategory(Category c) {
+		categoryDao.updateCategory(c);
 	}
 
 	public void deleteCategory(Category c) {
-		categoryDao.delete(c);
+		categoryDao.deleteCategory(c);
 	}
 
-	public List<Category> display() {
-		return categoryDao.display();
+	public Map<String, Item> getCategoryItems(Category c) {
+		return categoryDao.getCategory(c).getItems();
 	}
 }

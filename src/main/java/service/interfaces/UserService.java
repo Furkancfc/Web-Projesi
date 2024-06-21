@@ -1,4 +1,5 @@
 package service.interfaces;
-public interface UserService{
-	
+
+public abstract class UserService extends Service {
+
 }

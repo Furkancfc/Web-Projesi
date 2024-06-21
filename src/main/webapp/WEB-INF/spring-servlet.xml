@@ -14,11 +14,11 @@
         http://www.springframework.org/schema/util
         http://www.springframework.org/schema/util/spring-util.xsd
         ">
-	<context:component-scan
-		base-package="presentation;dao.implements;service.implement">
-	</context:component-scan>
-	<context:annotation-config />
 	<mvc:annotation-driven />
+	<context:component-scan
+		base-package="presentation;dao.implements;service.implement;webapp">
+
+	</context:component-scan>
 	<mvc:resources mapping="css/**" location="/css/" />
 	<mvc:resources mapping="js/**" location="/js/" />
 	<bean
@@ -28,7 +28,7 @@
 	</bean>
 	<bean id="ds" name="dataSource"
 		class='org.springframework.jdbc.datasource.DriverManagerDataSource'
-		autowire="byName" >
+		autowire="byName">
 		<property name="driverClassName"
 			value="com.mysql.cj.jdbc.Driver" />
 		<property name="url"
@@ -37,31 +37,52 @@
 		<property name="password" value="projectServer" />
 	</bean>
 	<bean id="jdbcTemplate" name="jdbcTemplate"
-		class="org.springframework.jdbc.core.JdbcTemplate" autowire="byName"
-		>
+		class="org.springframework.jdbc.core.JdbcTemplate" autowire="byName">
 		<property name="dataSource" ref='ds'></property>
 	</bean>
 	<bean id="cartDao" name="cartDao"
-		class='dao.implement.CartDaoImpl' autowire="byName" >
-		<property name="template" ref="jdbcTemplate"></property>
+		class='dao.implement.CartDaoImpl' autowire="byName">
+		<!-- <property name="template" ref="jdbcTemplate"></property> -->
 	</bean>
 	<bean id='categoryDao' name="categoryDao"
-		class='dao.implement.CategoryDaoImpl' autowire="byName"
-		>
-		<property name="template" ref="jdbcTemplate"></property>
+		class='dao.implement.CategoryDaoImpl' autowire="byName">
+		<!-- <property name="template" ref="jdbcTemplate"></property> -->
 	</bean>
 	<bean id='itemDao' name="itemDao"
-		class='dao.implement.ItemDaoImpl' autowire="byName" >
-		<property name="template" ref="jdbcTemplate"></property>
+		class='dao.implement.ItemDaoImpl' autowire="byName">
+		<!-- <property name="template" ref="jdbcTemplate"></property> -->
 	</bean>
 	<bean id='userDao' name="userDao"
-		class='dao.implement.UserDaoImpl' autowire="byName" >
-		<property name="template" ref="jdbcTemplate"></property>
+		class='dao.implement.UserDaoImpl' autowire="byName">
+		<!-- <property name="template" ref="jdbcTemplate"></property> -->
+	</bean>
+	<bean id="categoryService"
+		class="service.implement.CategoryServiceImpl" autowire="byName">
+		<!-- <property name="categoryDao" ref="categoryDao" /> -->
+	</bean>
+	<bean id="cartService" class="service.implement.CartServiceImpl"
+		autowire="byName">
+		<!-- <property name="cartDao" ref="cartDao"></property> -->
+	</bean>
+	<bean id="itemService" class="service.implement.ItemServiceImpl"
+		autowire="byName">
+		<!-- <property name="itemDao" ref="itemDao"></property> -->
+	</bean>
+	<bean id="userService" class="service.implement.UserServiceImpl"
+		autowire="byName">
+		<!-- <property name="userDao" ref="userDao"></property> -->
 	</bean>
 	<mvc:interceptors>
 		<mvc:interceptor>
 			<mvc:mapping path="/**" />
-			<bean class="webapp.DispatchInterceptor" />
+			<bean class="presentation.ViewController.MainInterceptor" />
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/admin" />
+			<mvc:mapping path="/admin/" />
+			<mvc:mapping path="/admin**" />
+			<mvc:mapping path="/admin/**" />
+			<bean class="presentation.ViewController.AdminInterceptor"></bean>
 		</mvc:interceptor>
 	</mvc:interceptors>
 </beans>

@@ -2,3 +2,4 @@
 .*/
 dbproject
 build
+/target/

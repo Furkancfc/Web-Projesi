@@ -3,9 +3,24 @@ package service.implement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import dao.interfaces.ItemDao;
+import model.Item;
+
 @Service
-public class ItemServiceImpl implements service.interfaces.ItemService {
+public class ItemServiceImpl extends service.interfaces.ItemService {
 	@Autowired
 	public dao.implement.ItemDaoImpl itemDao;
+
+	public Item addItem(Item t) {
+		return itemDao.create(t);
+	}
+
+	public void removeItem(Item t) {
+		itemDao.delete(t);
+	}
+
+	public Item updateItem(Item t) {
+		return itemDao.update(t);
+	}
 
 }
