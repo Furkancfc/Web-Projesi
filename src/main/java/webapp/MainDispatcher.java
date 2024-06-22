@@ -11,9 +11,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.catalina.Server;
-import org.apache.catalina.core.ApplicationContext;
-import org.apache.catalina.startup.Tomcat;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
