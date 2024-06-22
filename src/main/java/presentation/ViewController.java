@@ -94,9 +94,8 @@ public class ViewController {
 	 */
 	public void forward(String page, String to, HttpServletRequest req, HttpServletResponse resp) {
 		try {
-			if (!(req.getRequestURI().contains(".css") || req.getRequestURI().contains(".js"))) {
+			if (!(req.getRequestURI().contains(".css") || req.getRequestURI().contains(".js")))
 				setPage(page, req);
-			}
 			req.getRequestDispatcher(to).forward(req, resp);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -121,18 +120,26 @@ public class ViewController {
 
 	@Controller
 	class AdminController {
-		@GetMapping(path = { "/admin**.css", "/admin**js" })
+		@GetMapping(path = { "/**.css", "/**js" })
 		public String getResource(HttpServletRequest req, HttpServletResponse resp) {
 			return String.format("forward:%s", req.getRequestURI());
 		}
 
-		@GetMapping("/admin")
-		public void getIndex(HttpServletRequest req, HttpServletResponse resp) {
-			forward("/admin/index", "/jsp/admin/layout.jsp", req, resp);
+		@GetMapping("/jadmin/**")
+		public void doGetJAdmin(HttpServletRequest req, HttpServletResponse resp) {
+			if (req.getRequestURI().equals(req.getContextPath() + "/jadmin")) {
+				forward("/jadmin/index", "/jsp/jadmin/layout.jsp", req, resp);
+				return;
+			}
+			forward(req.getRequestURI(), "/jsp/jadmin/layout.jsp", req, resp);
 		}
 
 		@GetMapping("/admin/**")
 		public void doGet(HttpServletRequest req, HttpServletResponse resp) {
+			if (req.getRequestURI().equals(req.getContextPath() + "/admin")) {
+				forward("/admin/index", "/jsp/admin/layout.jsp", req, resp);
+				return;
+			}
 			forward(req.getRequestURI(), "/jsp/admin/layout.jsp", req, resp);
 		}
 
@@ -151,10 +158,11 @@ public class ViewController {
 
 		@PostMapping(path = { "/admin/products", "/admin/products/" })
 		public void postProduct(HttpServletRequest req, HttpServletResponse resp) {
-			//String productName = req.getParameter("product-name");
-			//String productPrice = req.getParameter("product-price");
-			//String photos = req.getParameter("product-photo");
-			//itemService.addItem(new Item(photos, photos, productName, photos, productPrice))
+			// String productName = req.getParameter("product-name");
+			// String productPrice = req.getParameter("product-price");
+			// String photos = req.getParameter("product-photo");
+			// itemService.addItem(new Item(photos, photos, productName, photos,
+			// productPrice))
 		}
 	}
 
