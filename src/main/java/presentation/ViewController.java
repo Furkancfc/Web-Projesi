@@ -151,10 +151,10 @@ public class ViewController {
 
 		@PostMapping(path = { "/admin/products", "/admin/products/" })
 		public void postProduct(HttpServletRequest req, HttpServletResponse resp) {
-			String productName = req.getParameter("product-name");
-			String productPrice = req.getParameter("product-price");
-			String photos = req.getParameter("product-photo");
-			itemService.addItem(new Item)
+			//String productName = req.getParameter("product-name");
+			//String productPrice = req.getParameter("product-price");
+			//String photos = req.getParameter("product-photo");
+			//itemService.addItem(new Item(photos, photos, productName, photos, productPrice))
 		}
 	}
 
