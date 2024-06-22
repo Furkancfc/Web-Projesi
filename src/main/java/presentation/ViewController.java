@@ -5,8 +5,6 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 
-import org.apache.tomcat.util.http.fileupload.util.mime.MimeUtility;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.RequestEntity.HeadersBuilder;
 import org.springframework.stereotype.Controller;
@@ -78,7 +76,7 @@ public class ViewController {
 		this.pageTitle = null;
 		this.pageCss = "css" + page + "/index.css";
 		this.pageJs = "js" + page + "/index.js";
-		this.pageContent = "/jsp" + page + "/index.jsp";
+		this.pageContent = "/jsp" + page + "/index.jsp"; // /jsp/CostumerPage/About/index.jsp
 		this.pageHead = "/jsp" + page + "/head.jsp";
 		req.setAttribute("page", page);
 		req.setAttribute("pageContent", pageContent);
@@ -156,8 +154,16 @@ public class ViewController {
 			String productName = req.getParameter("product-name");
 			String productPrice = req.getParameter("product-price");
 			String photos = req.getParameter("product-photo");
-			itemService.addItem(new Item)
 		}
+	}
+
+	@Controller
+	class CostumerPage {
+		@GetMapping(path = { "/CostumerPage/**" })
+		public void getPage(HttpServletRequest req, HttpServletResponse resp) {
+			forward(req.getRequestURI(), "/jsp/CostumerPage/layout.jsp", req, resp);
+		}
+
 	}
 
 	@Controller

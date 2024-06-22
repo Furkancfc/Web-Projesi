@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Confirmation</title>
+    <title>About Us</title>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -25,14 +25,9 @@
             </nav>
         </header>
         <main>
-            <section class="confirmation">
-                <h2>Order Confirmation</h2>
-                <p>Thank you for your order! Your order number is: <strong><%= request.getAttribute("orderNumber") %></strong></p>
-                <p>We have sent a confirmation email to: <strong><%= request.getAttribute("email") %></strong></p>
-                <p>Estimated delivery date: <strong><%= request.getAttribute("deliveryDate") %></strong></p>
-            </section>
+ 				<jsp:include page="${pageContent}" />
         </main>
     </div>
-    <script src="src=<%=request.getContextPath()%>/js/scripts.js"></script>
+    <script src="src="<%=request.getContextPath()%>/js/cart.js"></script>
 </body>
 </html>
