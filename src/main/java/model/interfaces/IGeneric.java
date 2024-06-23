@@ -2,6 +2,7 @@ package model.interfaces;
 
 import java.io.*;
 
+
 public interface IGeneric<T> extends Serializable {
 
 	public static Object getInstance(byte[] bytes) {

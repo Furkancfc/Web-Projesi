@@ -7,6 +7,7 @@ CREATE TABLE Account (
 	cartId varchar(128) not null unique ,
 	obj blob not null,
 	cart blob not null,
+	orders blob not null,
 	auth varchar(32) not null
 );
 CREATE TABLE Cart (

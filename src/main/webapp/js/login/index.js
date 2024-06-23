@@ -1,1 +1,0 @@
-$('loginsubmit').onclick

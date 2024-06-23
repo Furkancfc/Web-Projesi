@@ -2,9 +2,13 @@ package model;
 
 import webapp.MainDispatcher;
 import java.util.*;
+
+import model.interfaces.IOrders;
+
 import java.time.*;
 
-public class Orders {
+public class Orders implements IOrders{
+	private static final long serialVersionUID = 1L;
 	private String ordersId;
 	private Account account;
 	private Map<String, Order> orders;
