@@ -25,10 +25,31 @@
 	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js"
 	integrity="sha512-+k1pnlgt4F1H8L7t3z95o3/KO+o78INEcXTbnoJQ/F2VqDVhWoaiVml/OEHv9HsVgxUaVW+IbiZPUJQfF/YxZw=="
 	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<link rel="stylesheet" href="css/layout.css"/>
-<script scr='js/layout.js'></script>
-<script src='js/site.js'></script>
-<%@ include file="header.jsp"%>
+<link rel="stylesheet" href="css/layout.css" />
+<script scr='/js/layout.js'></script>
+<script src='/js/site.js'></script>
+<%@ page import="webapp.Session"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%
+String pageString = (String) request.getAttribute("page");
+String pageCss = (String) request.getAttribute("pageCss");
+String pageJs = (String) request.getAttribute("pageJs");
+String pageTitle = (String) request.getAttribute("pageTitle");
+String pageContent = (String) request.getAttribute("pageContent");
+String pageHead = (String) request.getAttribute("pageHead");
+%>
+<%
+if (pageTitle != null)
+%>
+<title>${pageTitle}</title>
+<%
+if (pageCss != null)
+%>
+<link rel="stylesheet" href="${pageCss}">
+<%
+if (pageJs != null)
+%>
+<script src="${pageJs}"></script>
 <%
 try {
 %>

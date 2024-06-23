@@ -5,10 +5,9 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 
-import org.apache.tomcat.util.http.fileupload.util.mime.MimeUtility;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.RequestEntity.HeadersBuilder;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MimeType;
@@ -16,6 +15,8 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.HttpClientErrorException.Forbidden;
 import org.springframework.web.server.i18n.AcceptHeaderLocaleContextResolver;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -72,9 +73,7 @@ public class ViewController {
 	// page configurations for Home app contents
 
 	private String setPage(String page, HttpServletRequest req) {
-		// req = /index/about --> css/index/about/index.css
-		// * req = /login --> css/login/index.css, jsp/login/index.jsp,
-		// js/login/login.js
+		page = page.replace(req.getContextPath(), "");
 		this.pageTitle = null;
 		this.pageCss = "css" + page + "/index.css";
 		this.pageJs = "js" + page + "/index.js";
@@ -96,11 +95,11 @@ public class ViewController {
 	 */
 	public void forward(String page, String to, HttpServletRequest req, HttpServletResponse resp) {
 		try {
-			if (!(req.getRequestURI().contains(".css") || req.getRequestURI().contains(".js"))) {
-				setPage(page, req);
-			}
+			setPage(page, req);
 			req.getRequestDispatcher(to).forward(req, resp);
-		} catch (Exception e) {
+		} catch (
+
+		Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -109,12 +108,9 @@ public class ViewController {
 	 * 
 	 * @param page
 	 * @param req
-	 * @param resp Redirects to layout.jsp
 	 */
-
-	public void redirect(String page, String to, HttpServletRequest req, HttpServletResponse resp) {
+	public void redirect(String to, HttpServletRequest req, HttpServletResponse resp) {
 		try {
-			setPage(page, req);
 			resp.sendRedirect(to);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -123,18 +119,21 @@ public class ViewController {
 
 	@Controller
 	class AdminController {
-		@GetMapping(path = { "/admin**.css", "/admin**js" })
-		public String getResource(HttpServletRequest req, HttpServletResponse resp) {
-			return String.format("forward:%s", req.getRequestURI());
-		}
-
-		@GetMapping("/admin")
-		public void getIndex(HttpServletRequest req, HttpServletResponse resp) {
-			forward("/admin/index", "/jsp/admin/layout.jsp", req, resp);
+		@GetMapping("/jadmin/**")
+		public void doGetJAdmin(HttpServletRequest req, HttpServletResponse resp) {
+			if (req.getRequestURI().equals(req.getContextPath() + "/jadmin")) {
+				forward("/jadmin/index", "/jsp/jadmin/layout.jsp", req, resp);
+				return;
+			}
+			forward(req.getRequestURI(), "/jsp/jadmin/layout.jsp", req, resp);
 		}
 
 		@GetMapping("/admin/**")
 		public void doGet(HttpServletRequest req, HttpServletResponse resp) {
+			if (req.getRequestURI().equals(req.getContextPath() + "/admin")) {
+				forward("/admin/index", "/jsp/admin/layout.jsp", req, resp);
+				return;
+			}
 			forward(req.getRequestURI(), "/jsp/admin/layout.jsp", req, resp);
 		}
 
@@ -153,34 +152,27 @@ public class ViewController {
 
 		@PostMapping(path = { "/admin/products", "/admin/products/" })
 		public void postProduct(HttpServletRequest req, HttpServletResponse resp) {
-			String productName = req.getParameter("product-name");
-			String productPrice = req.getParameter("product-price");
-			String photos = req.getParameter("product-photo");
-			itemService.addItem(new Item)
+			// String productName = req.getParameter("product-name");
+			// String productPrice = req.getParameter("product-price");
+			// String photos = req.getParameter("product-photo");
+			// itemService.addItem(new Item(photos, photos, productName, photos,
+			// productPrice))
 		}
 	}
 
 	@Controller
 	class IndexController {
 		@GetMapping(path = { "/" })
-		public void getIndex(HttpServletRequest req, HttpServletResponse resp) {
-			forward("/index", "/jsp/template/layout.jsp", req, resp);
-		}
 
-		@GetMapping(path = { "/index**", "/index/**" })
-		public void doGet(HttpServletRequest req, HttpServletResponse resp, Model m) {
-			forward(req.getRequestURI(), "/jsp/template/layout.jsp", req, resp);
-		}
-
-		@GetMapping(path = { "/index**.css", "/index**.js" })
-		public String dispatchResources(HttpServletRequest req, HttpServletResponse resp) {
+		public String doGet(HttpServletRequest req, HttpServletResponse resp) {
+			setPage("index", req);
 			return "forward:/jsp/template/layout.jsp";
 		}
 
 		@RequestMapping(path = { "/logout", "/logout/" })
 		public void logout(HttpSession session, HttpServletRequest req, HttpServletResponse resp) {
 			session.invalidate();
-			getIndex(req, resp);
+			forward("/index", "/jsp/template/layout.jsp", req, resp);
 		}
 
 		@Controller
@@ -190,18 +182,18 @@ public class ViewController {
 				if (!checkSession(req, resp))
 					forward("/login", "/jsp/template/layout.jsp", req, resp);
 				else
-					getIndex(req, resp);
+					forward("/index", "/jsp/template/layout.jsp", req, resp);
 			}
 
 			@PostMapping("/login")
 			public void postLogin(HttpServletRequest req, HttpServletResponse resp) {
 				String email = req.getParameter("email");
 				String password = req.getParameter("password");
-				Account ac = MainDispatcher.getUser(email);
+				Account ac = userService.getAccountForEmail(email);
 				if (ac != null && ac.getPassword().equals(password)) {
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
-					getIndex(req, resp);
+					forward("/index", "/jsp/template/layout.jsp", req, resp);
 				} else {
 					forward("/login", "/jsp/template/layout.jsp", req, resp);
 				}
@@ -215,7 +207,7 @@ public class ViewController {
 				if (!checkSession(req, resp)) {
 					forward("/signup", "/jsp/template/layout.jsp", req, resp);
 				} else {
-					getIndex(req, resp);
+					forward("/index", "/jsp/template/layout.jsp", req, resp);
 				}
 			}
 
@@ -226,11 +218,11 @@ public class ViewController {
 				String password = req.getParameter("password");
 				String passagain = req.getParameter("confirm-password");
 				if (password.equals(passagain)) {
-					Account ac = new Account(email, password, username, null);
-					MainDispatcher.putUser(ac);
+					Account ac = new Account(email, password, username, "");
+					userService.createAccount(ac);
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
-					getIndex(req, resp);
+					forward("/index", "/jsp/template/layout.jsp", req, resp);
 				} else {
 					forward("/signup", "/jsp/template/layout.jsp", req, resp);
 				}
@@ -255,9 +247,12 @@ public class ViewController {
 
 	public class MainInterceptor implements HandlerInterceptor {
 		@Override
-		public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object handler) throws Exception {
-			System.out.printf("===REQUEST===\nTIMESTAMP : %s\nMETHOD : %s\nREQUEST URI : %s\n",
-					Instant.now().atOffset(ZoneOffset.UTC), req.getMethod(), req.getRequestURI());
+		public boolean preHandle(@NonNull HttpServletRequest req, @NonNull HttpServletResponse resp, Object handler)
+				throws Exception {
+			System.out.printf(
+					"===REQUEST===\nTIMESTAMP : %s\nCONTEXT PATH : %s\nMETHOD : %s\nREQUEST URI : %s\nREQUEST CONTENT TYPE:%s\n",
+					Instant.now().atOffset(ZoneOffset.UTC), req.getContextPath(), req.getMethod(), req.getRequestURI(),
+					req.getContentType());
 			req.getServletContext().setAttribute("categoryService", categoryService);
 			req.getServletContext().setAttribute("userService", userService);
 			req.getServletContext().setAttribute("cartService", cartService);

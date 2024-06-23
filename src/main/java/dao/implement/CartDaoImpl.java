@@ -39,13 +39,14 @@ public class CartDaoImpl extends CartDao {
 			@Override
 			public Cart doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				try {
-					ps.setString(0, c.getCartId());
-					ps.setBlob(1, new Blob(IGeneric.getBytes(c.getItems()), null));
-					ps.setBigDecimal(2, new BigDecimal(c.getLastUpdate().toEpochMilli()));
-					ps.setBlob(3, new Blob(IGeneric.getBytes(c), null));
+					ps.setString(1, c.getCartId());
+					ps.setBytes(2, IGeneric.getBytes(c.getItems()));
+					ps.setBigDecimal(3, new BigDecimal(c.getLastUpdate().toEpochMilli()));
+					ps.setBytes(4, IGeneric.getBytes(c));
 					ps.execute();
 					return c;
 				} catch (Exception e) {
+					e.printStackTrace();
 					return null;
 				}
 			};
@@ -65,9 +66,9 @@ public class CartDaoImpl extends CartDao {
 			public Cart doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				try {
 					ps.setString(0, c.getCartId());
-					ps.setBlob(1, new Blob(IGeneric.getBytes(c.getItems()), null));
+					ps.setBytes(1, IGeneric.getBytes(c.getItems()));
 					ps.setBigDecimal(2, new BigDecimal(c.getLastUpdate().toEpochMilli()));
-					ps.setBlob(3, new Blob(IGeneric.getBytes(c), null));
+					ps.setBytes(3, IGeneric.getBytes(c));
 					ps.setString(4, c.getCartId());
 					ps.execute();
 					return c;
@@ -108,8 +109,8 @@ public class CartDaoImpl extends CartDao {
 					ps.setString(0, ci.getItemId());
 					ps.setBigDecimal(0, new BigDecimal(ci.getListingTime().toEpochMilli()));
 					ps.setInt(2, ci.getItemCount());
-					ps.setBlob(3, new Blob(IGeneric.getBytes(ci.getItem()), null));
-					ps.setBlob(4, new Blob(IGeneric.getBytes(ci), null));
+					ps.setBytes(3, IGeneric.getBytes(ci.getItem()));
+					ps.setBytes(4, IGeneric.getBytes(ci));
 					ps.execute();
 					return 0;
 

@@ -28,10 +28,15 @@ public class OrdersDaoImpl extends dao.interfaces.OrderDao {
 		return template.execute(sql, new PreparedStatementCallback<Orders>() {
 			@Override
 			public Orders doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
-				ps.setString(1, t.getOrdersId());
-				ps.setBytes(2, IGeneric.getBytes(t.getAccount()));
-				ps.setBytes(3,IGeneric.getBytes(t.getOrders()));
-				return t;
+				try {
+					ps.setString(1, t.getAccountId());
+					ps.setBytes(2, IGeneric.getBytes(t.getAccount()));
+					ps.setBytes(3, IGeneric.getBytes(t.getOrders()));
+					ps.execute();
+					return t;
+				} catch (Exception e) {
+					return null;
+				}
 			}
 		});
 	}
@@ -56,7 +61,6 @@ public class OrdersDaoImpl extends dao.interfaces.OrderDao {
 			public Orders doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				ps.setBytes(1, IGeneric.getBytes(t.getAccount()));
 				ps.setBytes(2, IGeneric.getBytes(t.getOrders()));
-				ps.setBytes(3,IGeneric.getBytes(t));
 				ps.setString(4, t.getOrdersId());
 				return t;
 			}

@@ -17,10 +17,11 @@
 	<mvc:annotation-driven />
 	<context:component-scan
 		base-package="presentation;dao.implements;service.implement;webapp">
-
 	</context:component-scan>
-	<mvc:resources mapping="css/**" location="/css/" />
-	<mvc:resources mapping="js/**" location="/js/" />
+	
+	<mvc:resources mapping="/css/**" location="/css/" />
+	<mvc:resources mapping="/js/**" location="/js/" />
+	
 	<bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/"></property>
@@ -36,39 +37,45 @@
 		<property name="username" value="projectServer" />
 		<property name="password" value="projectServer" />
 	</bean>
-	<bean id="jdbcTemplate" name="jdbcTemplate"
+	<bean name="template"
 		class="org.springframework.jdbc.core.JdbcTemplate" autowire="byName">
 		<property name="dataSource" ref='ds'></property>
 	</bean>
-	<bean id="cartDao" name="cartDao"
-		class='dao.implement.CartDaoImpl' autowire="byName">
+	<bean name="cartDao" class='dao.implement.CartDaoImpl'
+		autowire="byName">
 		<!-- <property name="template" ref="jdbcTemplate"></property> -->
 	</bean>
-	<bean id='categoryDao' name="categoryDao"
-		class='dao.implement.CategoryDaoImpl' autowire="byName">
+	<bean name="ordersDao" class="dao.implement.OrdersDaoImpl"
+		autowire="byName">
+	</bean>
+	<bean name="categoryDao" class='dao.implement.CategoryDaoImpl'
+		autowire="byName">
 		<!-- <property name="template" ref="jdbcTemplate"></property> -->
 	</bean>
-	<bean id='itemDao' name="itemDao"
-		class='dao.implement.ItemDaoImpl' autowire="byName">
+	<bean name="itemDao" class='dao.implement.ItemDaoImpl'
+		autowire="byName">
 		<!-- <property name="template" ref="jdbcTemplate"></property> -->
 	</bean>
-	<bean id='userDao' name="userDao"
-		class='dao.implement.UserDaoImpl' autowire="byName">
+	<bean name="userDao" class='dao.implement.UserDaoImpl'
+		autowire="byName">
 		<!-- <property name="template" ref="jdbcTemplate"></property> -->
 	</bean>
-	<bean id="categoryService"
+	<!-- <bean name="ordersService" class=''> -->
+
+	<!-- </bean> -->
+	<bean name="categoryService"
 		class="service.implement.CategoryServiceImpl" autowire="byName">
 		<!-- <property name="categoryDao" ref="categoryDao" /> -->
 	</bean>
-	<bean id="cartService" class="service.implement.CartServiceImpl"
+	<bean name="cartService" class="service.implement.CartServiceImpl"
 		autowire="byName">
 		<!-- <property name="cartDao" ref="cartDao"></property> -->
 	</bean>
-	<bean id="itemService" class="service.implement.ItemServiceImpl"
+	<bean name="itemService" class="service.implement.ItemServiceImpl"
 		autowire="byName">
 		<!-- <property name="itemDao" ref="itemDao"></property> -->
 	</bean>
-	<bean id="userService" class="service.implement.UserServiceImpl"
+	<bean name="userService" class="service.implement.UserServiceImpl"
 		autowire="byName">
 		<!-- <property name="userDao" ref="userDao"></property> -->
 	</bean>

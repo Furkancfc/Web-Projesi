@@ -25,7 +25,11 @@
 					<input type="text" id="product-name" name="product-name" required /> 
 					<label>Short Desc : </label>
 					<label for='product-shortDesc' name='product-shortDesc' required />
+<<<<<<< HEAD
 					<input name='product-shortDesc'/>
+=======
+					<input name='product-shortDesc' type=''/>
+>>>>>>> furkan
 					<label>Long Desc : </label>
 					<input/>
 					<label for="product-price">Price:</label>
