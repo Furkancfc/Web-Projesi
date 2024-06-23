@@ -3,30 +3,19 @@ package dao.implement;
 import model.Cart;
 import com.mysql.cj.jdbc.Blob;
 import model.CartItem;
-import model.Item;
 import model.interfaces.IGeneric;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
-import org.springframework.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.*;
 import org.springframework.jdbc.core.*;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.*;
 
-import com.mysql.cj.protocol.a.BlobValueEncoder;
-
 import dao.interfaces.CartDao;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 @Repository
 public class CartDaoImpl extends CartDao {
@@ -39,14 +28,13 @@ public class CartDaoImpl extends CartDao {
 			@Override
 			public Cart doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				try {
-					ps.setString(1, c.getCartId());
-					ps.setBytes(2, IGeneric.getBytes(c.getItems()));
-					ps.setBigDecimal(3, new BigDecimal(c.getLastUpdate().toEpochMilli()));
-					ps.setBytes(4, IGeneric.getBytes(c));
+					ps.setString(0, c.getCartId());
+					ps.setBlob(1, new Blob(IGeneric.getBytes(c.getItems()), null));
+					ps.setBigDecimal(2, new BigDecimal(c.getLastUpdate().toEpochMilli()));
+					ps.setBlob(3, new Blob(IGeneric.getBytes(c), null));
 					ps.execute();
 					return c;
 				} catch (Exception e) {
-					e.printStackTrace();
 					return null;
 				}
 			};
@@ -66,9 +54,9 @@ public class CartDaoImpl extends CartDao {
 			public Cart doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				try {
 					ps.setString(0, c.getCartId());
-					ps.setBytes(1, IGeneric.getBytes(c.getItems()));
+					ps.setBlob(1, new Blob(IGeneric.getBytes(c.getItems()), null));
 					ps.setBigDecimal(2, new BigDecimal(c.getLastUpdate().toEpochMilli()));
-					ps.setBytes(3, IGeneric.getBytes(c));
+					ps.setBlob(3, new Blob(IGeneric.getBytes(c), null));
 					ps.setString(4, c.getCartId());
 					ps.execute();
 					return c;
@@ -109,8 +97,8 @@ public class CartDaoImpl extends CartDao {
 					ps.setString(0, ci.getItemId());
 					ps.setBigDecimal(0, new BigDecimal(ci.getListingTime().toEpochMilli()));
 					ps.setInt(2, ci.getItemCount());
-					ps.setBytes(3, IGeneric.getBytes(ci.getItem()));
-					ps.setBytes(4, IGeneric.getBytes(ci));
+					ps.setBlob(3, new Blob(IGeneric.getBytes(ci.getItem()), null));
+					ps.setBlob(4, new Blob(IGeneric.getBytes(ci), null));
 					ps.execute();
 					return 0;
 

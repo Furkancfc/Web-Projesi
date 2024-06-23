@@ -17,6 +17,7 @@ import java.util.concurrent.locks.*;
 public class Account implements IAccount {
 	private ReentrantLock lock;
 	private static final long serialVersionUID = 1L;
+
 	private String username;
 	private String email;
 	private String password;
@@ -117,13 +118,5 @@ public class Account implements IAccount {
 
 	public String getUserId() {
 		return userId;
-	}
-
-	public void setOrders(Orders orders) {
-		this.orders = orders;
-	};
-
-	public Orders getOrders() {
-		return this.orders;
 	}
 }

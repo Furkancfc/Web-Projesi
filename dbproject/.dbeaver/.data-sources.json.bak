@@ -1,16 +1,18 @@
 {
 	"folders": {},
 	"connections": {
-		"mysql8-1902784f18a-53ea9e5fb573638f": {
+		"mysql8-18ffd72f14d-10b1f093ac37a3fc": {
 			"provider": "mysql",
 			"driver": "mysql8",
-			"name": "localhost",
+			"name": "webproject2",
 			"save-password": true,
+			"show-system-objects": true,
 			"configuration": {
 				"host": "localhost",
 				"port": "3306",
-				"url": "jdbc:mysql://localhost:3306/",
-				"configurationType": "URL",
+				"database": "webproject2",
+				"url": "jdbc:mysql://localhost:3306/webproject2",
+				"configurationType": "MANUAL",
 				"type": "dev",
 				"closeIdleConnection": true,
 				"properties": {
@@ -19,7 +21,11 @@
 					"enabledTLSProtocols": "TLSv1,TLSv1.1,TLSv1.2,TLSv1.3"
 				},
 				"auth-model": "native",
-				"handlers": {}
+				"events": {},
+				"handlers": {},
+				"bootstrap": {
+					"autocommit": false
+				}
 			}
 		}
 	},

@@ -6,8 +6,7 @@ import model.interfaces.IOrders;
 
 import java.time.*;
 
-public class Orders implements IOrders{
-	private static final long serialVersionUID = 1L;
+public class Orders {
 	private String ordersId;
 	private Account account;
 	private Map<String, Order> orders;

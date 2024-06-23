@@ -1,6 +1,5 @@
 package model.interfaces;
-import model.*;
-public interface IOrders extends IGeneric<Orders>
-{
 
+public interface IOrders extends IGeneric<model.Orders>{
+	
 }

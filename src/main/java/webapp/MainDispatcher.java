@@ -1,7 +1,6 @@
 package webapp;
 
 import model.*;
-import service.implement.UserServiceImpl;
 
 import java.io.IOException;
 import java.net.URI;
@@ -25,10 +24,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.HttpServletBean;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import dao.*;
-import dao.implement.UserDaoImpl;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -40,16 +37,17 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 public class MainDispatcher extends DispatcherServlet {
+
 	private static final long serialVersionUID = -2020821112498604792L;
 	public static Map<String, Account> users;
 	private static WebApplicationContext context;
-	@Autowired
-	public UserDaoImpl userDao;
-	
+
 	public MainDispatcher() {
 		super();
 		context = new XmlWebApplicationContext();
 		setApplicationContext(context);
+		users = new HashMap<String, Account>();
+		putUser(new Account("admin", "admin", "admin", "admin"));
 	}
 
 	public static boolean putUser(Account ac) {

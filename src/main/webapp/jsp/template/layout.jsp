@@ -26,8 +26,8 @@
 	integrity="sha512-+k1pnlgt4F1H8L7t3z95o3/KO+o78INEcXTbnoJQ/F2VqDVhWoaiVml/OEHv9HsVgxUaVW+IbiZPUJQfF/YxZw=="
 	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="stylesheet" href="css/layout.css" />
-<script scr='/js/layout.js'></script>
-<script src='/js/site.js'></script>
+<script scr='js/layout.js'></script>
+<script src='js/site.js'></script>
 <%@ page import="webapp.Session"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%
@@ -50,7 +50,7 @@ if (pageCss != null)
 if (pageJs != null)
 %>
 <script src="${pageJs}"></script>
-<%
+	r<%
 try {
 %>
 <c:catch>

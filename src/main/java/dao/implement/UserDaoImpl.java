@@ -2,7 +2,6 @@ package dao.implement;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import dao.interfaces.UserDao;
@@ -22,11 +20,6 @@ import model.interfaces.IGeneric;
 
 @Repository
 public class UserDaoImpl extends UserDao {
-	@Autowired
-	public CartDaoImpl cartDao;
-	@Autowired
-	public OrdersDaoImpl ordersDao;
-
 	public model.Account getUser(String email) {
 		String sql = "select * from Account";
 		template.query(sql, new UserMapper());
@@ -34,9 +27,8 @@ public class UserDaoImpl extends UserDao {
 	}
 
 	public model.Account createUser(Account c) {
-		String sql = "insert into Account values ((?),(?),(?),(?),(?),(?),(?),(?),(?))";
-		cartDao.create(c.getUserCart());
-		ordersDao.create(c.getOrders());
+		String sql = "insert into Account values ((?),(?),(?),(?),(?),(?),(?),(?))";
+		new CartDaoImpl().create(c.getUserCart());
 		return template.execute(sql, new PreparedStatementCallback<Account>() {
 			@Override
 			public Account doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
@@ -47,8 +39,7 @@ public class UserDaoImpl extends UserDao {
 				ps.setString(5, c.getUserCart().getCartId());
 				ps.setBytes(6, IGeneric.getBytes(c));
 				ps.setBytes(7, IGeneric.getBytes(c.getUserCart()));
-				ps.setBytes(8, IGeneric.getBytes(c.getOrders()));
-				ps.setString(9, c.getAuth());
+				ps.setString(8, c.getAuth());
 				ps.execute();
 				return c;
 			}
@@ -72,21 +63,6 @@ public class UserDaoImpl extends UserDao {
 		String sql = String.format("select * from Account where userId=\"%s\"", accountId);
 		return template.queryForObject(sql, new UserMapper());
 
-	}
-
-	public Account getAccountForEmail(String email) {
-		String sql = "select * from Account where email=(?)";
-		return template.execute(sql, new PreparedStatementCallback<Account>() {
-			@Override
-			public Account doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
-				ps.setString(1, email);
-				ResultSet rs = ps.executeQuery();
-				if (rs != null && rs.getRow() > 0)
-					return new UserMapper().mapRow(rs, rs.getRow());
-				else
-					return null;
-			}
-		});
 	}
 
 	@Override
