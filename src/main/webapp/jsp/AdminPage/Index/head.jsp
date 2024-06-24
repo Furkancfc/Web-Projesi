@@ -1,1 +1,1 @@
-   <title>Admin Dashboard</title>
+   <title>Welcome To Admin Page</title>

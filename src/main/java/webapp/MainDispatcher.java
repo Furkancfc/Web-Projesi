@@ -4,12 +4,17 @@ import model.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +38,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
@@ -67,7 +73,7 @@ public class MainDispatcher extends DispatcherServlet {
 
 	@Override
 	protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		super.doDispatch(request, response);
+		super.doDispatch(new RequestWrapper(request), response);
 	}
 
 	public static WebApplicationContext getContext() {

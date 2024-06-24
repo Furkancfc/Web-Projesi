@@ -27,7 +27,7 @@ public abstract class ItemDao extends Dao<model.Item> {
 				long lastAccess = rs.getLong("lastAccess");
 				String categoryName = rs.getString("categoryName");
 				String price = rs.getString("price");
-				i = new Item(title, shortDesc, longDesc, categoryName,price);
+				i = new Item(title, shortDesc, longDesc, categoryName, imageUris, price);
 				return i;
 			} else {
 				return null;

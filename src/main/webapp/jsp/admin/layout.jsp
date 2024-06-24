@@ -1,17 +1,6 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql"%>
 <html>
 <head>
 <c:import url="head.jsp" />
-<c:catch>
-	<link rel='stylessheet' href="${pageCss}" />
-</c:catch>
-<c:catch>
-	<script src="${pageJs}" /></script>
-</c:catch>
-<c:catch>
-	<c:import url="${pageHead}" />
-</c:catch>
 <link rel="stylesheet" href="/css/admin/style.css" />
 <script src='/js/admin/layout.js'></script>
 </head>
@@ -30,9 +19,6 @@
 			</nav>
 		</header>
 		${pageContent }
-		<c:catch>
-			<jsp:include page="${pageContent}" />
-		</c:catch>
 	</div>
 </body>
 

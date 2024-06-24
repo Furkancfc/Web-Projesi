@@ -19,7 +19,8 @@ public class Item implements IItem {
 	private String categoryName;
 	private String price;
 
-	public Item(String title, String shortDesc, String longDesc, String categoryName,String price) {
+	public Item(String title, String shortDesc, String longDesc, String categoryName, String[] imageURIs,
+			String price) {
 		this.itemId = MainDispatcher.createRandomId();
 		if (title == null) {
 			System.err.println("Title cannot be null");
