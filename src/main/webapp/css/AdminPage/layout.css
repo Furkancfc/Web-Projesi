@@ -104,8 +104,8 @@ td img {
     margin-top: 0;
 }
 
-.form-popup input[type="text"], .form-popup input[type="number"], .form-popup input[type="file"] {
-    width: 100%;
+.form-popup input {
+    width:auto;
     padding: 10px;
     margin: 10px 0;
     border: 1px solid #ddd;

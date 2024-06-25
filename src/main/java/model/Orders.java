@@ -6,7 +6,8 @@ import model.interfaces.IOrders;
 
 import java.time.*;
 
-public class Orders {
+public class Orders implements IOrders {
+	private static final long serialVersionUID = 1L;
 	private String ordersId;
 	private Account account;
 	private Map<String, Order> orders;
@@ -16,21 +17,26 @@ public class Orders {
 		private CartItem cartItem;
 		private String price;
 		private Instant purchaseTime;
+
 		public Order(CartItem ci) {
 			this.cartItem = ci;
 			this.price = ci.getItem().getPrice();
 			this.purchaseTime = Instant.now();
 			this.orderId = MainDispatcher.createRandomId();
 		}
+
 		public CartItem getCartItem() {
 			return cartItem;
 		}
+
 		public String getOrderId() {
 			return orderId;
 		}
+
 		public String getPrice() {
 			return price;
 		}
+
 		public Instant getPurchaseTime() {
 			return purchaseTime;
 		}
@@ -61,7 +67,7 @@ public class Orders {
 	public String getOrdersId() {
 		return this.ordersId;
 	}
-	
+
 	public String getAccountId() {
 		return getAccount().getUserId();
 	}

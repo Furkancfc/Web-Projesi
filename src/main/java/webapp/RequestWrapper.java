@@ -30,7 +30,7 @@ public class RequestWrapper extends HttpServletRequestWrapper implements HttpSer
 	@Override
 	public String getRequestURI() {
 		try {
-			URI uri = new URI(customURL);
+			URI uri = new URI(getRequestURL().toString());
 			return uri.getPath();
 		} catch (URISyntaxException e) {
 			e.printStackTrace();

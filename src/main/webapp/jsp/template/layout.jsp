@@ -50,7 +50,7 @@ if (pageCss != null)
 if (pageJs != null)
 %>
 <script src="${pageJs}"></script>
-	r<%
+<%
 try {
 %>
 <c:catch>

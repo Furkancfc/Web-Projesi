@@ -80,22 +80,23 @@ public class ViewController {
 
 	// page configurations for Home app contents
 
-	private String setPage(String page, RequestWrapper req) {
-		// req = /index/about --> css/index/about/index.css
-		// * req = /login --> css/login/index.css, jsp/login/index.jsp,
-		// js/login/login.js
+	private void setPage(String page, RequestWrapper req) {
+
 		page = page.replace(req.getContextPath(), "");
 		System.out.println(page);
-		this.pageCss = req.getContextPath() + "/css" + page + "/index.css";
-		this.pageJs = req.getContextPath() + "/js" + page + "/index.js";
-		this.pageContent = "/jsp" + page + "/index.jsp";
-		this.pageHead = "/jsp" + page + "/head.jsp";
-		req.setAttribute("page", page);
-		req.setAttribute("pageContent", pageContent);
-		req.setAttribute("pageCss", pageCss);
-		req.setAttribute("pageJs", pageJs);
-		req.setAttribute("pageHead", pageHead);
-		return pageContent;
+		if (!req.getRequestURI().contains(".css") && !req.getRequestURI().contains(".js")
+				&& !req.getRequestURI().equals(".jsp")) {
+			this.pageCss = req.getContextPath() + "/css" + page + "/index.css";
+			this.pageJs = req.getContextPath() + "/js" + page + "/index.js";
+			this.pageContent = "/jsp" + page + "/index.jsp";
+			this.pageHead = "/jsp" + page + "/head.jsp";
+			System.out.println(pageContent);
+			req.setAttribute("page", page);
+			req.setAttribute("pageContent", pageContent);
+			req.setAttribute("pageCss", pageCss);
+			req.setAttribute("pageJs", pageJs);
+			req.setAttribute("pageHead", pageHead);
+		}
 	}
 
 	/**
@@ -105,10 +106,8 @@ public class ViewController {
 	 * @param resp Forwards request to layout.jsp
 	 */
 	public void forward(String page, String to, RequestWrapper req, HttpServletResponse resp) {
-		req = new RequestWrapper(req);
 		try {
-			if (!req.getRequestURI().contains(".css") || !req.getRequestURI().contains(".js"))
-				setPage(page, req);
+			setPage(page, req);
 			req.getRequestDispatcher(to).forward(req, resp);
 		} catch (
 
@@ -124,8 +123,8 @@ public class ViewController {
 	 * @param resp Redirects to layout.jsp
 	 */
 	public void redirect(String to, RequestWrapper req, HttpServletResponse resp) {
-		req = new RequestWrapper(req);
 		try {
+			to = req.getContextPath() + to;
 			resp.sendRedirect(to);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -134,10 +133,10 @@ public class ViewController {
 
 	@Controller
 	class AdminController {
-		final String name = "/AdminPage";
-		final String layout = "/jsp/AdminPage/layout.jsp";
+		static final String name = "/AdminPage";
+		static final String layout = "/jsp/AdminPage/layout.jsp";
 
-		@GetMapping(path = { name + "/**" })
+		@GetMapping(path = { name, name + "/**" })
 		public void doGet(RequestWrapper req, HttpServletResponse resp) {
 			if (req.getRequestURI().equals(req.getContextPath() + name)) {
 				forward("/AdminPage/Index", layout, req, resp);
@@ -174,21 +173,20 @@ public class ViewController {
 
 	@Controller
 	class IndexController {
-
-		@GetMapping(path = { "/" })
-		public void getIndex(RequestWrapper req, HttpServletResponse resp) {
-			forward("/index", "/jsp/template/layout.jsp", req, resp);
-		}
-
-		@GetMapping(path = { "/index**", "/index/**" })
-		public void doGet(RequestWrapper req, HttpServletResponse resp, Model m) {
-			forward(req.getRequestURI(), "/jsp/template/layout.jsp", req, resp);
+		@GetMapping(path = { "/", "/CustomerPage/**" })
+		public void getIndexPage(RequestWrapper req, HttpServletResponse resp, Model m) {
+			if (req.getRequestURI().equals(req.getContextPath())) {
+				forward("/CustomerPage/Index", "/jsp/CustomerPage/layout.jsp", req, resp);
+				return;
+			}
+			forward(req.getRequestURI(), "/jsp/CustomerPage/layout.jsp", req, resp);
+			return;
 		}
 
 		@RequestMapping(path = { "/logout", "/logout/" })
 		public void logout(HttpSession session, RequestWrapper req, HttpServletResponse resp) {
 			session.invalidate();
-			getIndex(req, resp);
+			redirect("/index", req, resp);
 		}
 
 		@Controller
@@ -198,7 +196,7 @@ public class ViewController {
 				if (!checkSession(req, resp))
 					forward("/login", "/jsp/template/layout.jsp", req, resp);
 				else
-					getIndex(req, resp);
+					redirect("/index", req, resp);
 			}
 
 			@PostMapping("/login")
@@ -209,7 +207,7 @@ public class ViewController {
 				if (ac != null && ac.getPassword().equals(password)) {
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
-					getIndex(req, resp);
+					redirect("/index", req, resp);
 				} else {
 					forward("/login", "/jsp/template/layout.jsp", req, resp);
 				}
@@ -223,7 +221,7 @@ public class ViewController {
 				if (!checkSession(req, resp)) {
 					forward("/signup", "/jsp/template/layout.jsp", req, resp);
 				} else {
-					getIndex(req, resp);
+					redirect("/index", req, resp);
 				}
 			}
 
@@ -238,7 +236,7 @@ public class ViewController {
 					MainDispatcher.putUser(ac);
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
-					getIndex(req, resp);
+					redirect("/index", req, resp);
 				} else {
 					forward("/signup", "/jsp/template/layout.jsp", req, resp);
 				}
@@ -266,9 +264,9 @@ public class ViewController {
 				throws Exception {
 			RequestWrapper rw = new RequestWrapper(req);
 			System.out.printf(
-					"===REQUEST===\nTIMESTAMP : %s\nCONTEXT PATH : %s\nMETHOD : %s\nREQUEST URI : %s\nREQUEST CONTENT TYPE:%s\n",
+					"===REQUEST===\nTIMESTAMP : %s\nCONTEXT PATH : %s\nMETHOD : %s\nREQUEST URI : %s\nREQUEST URL : %s\nREQUEST CONTENT TYPE:%s\n",
 					Instant.now().atOffset(ZoneOffset.UTC), rw.getContextPath(), rw.getMethod(), rw.getRequestURI(),
-					rw.getContentType());
+					rw.getRequestURL(), rw.getContentType());
 			req.getServletContext().setAttribute("categoryService", categoryService);
 			req.getServletContext().setAttribute("userService", userService);
 			req.getServletContext().setAttribute("cartService", cartService);

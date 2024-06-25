@@ -16,16 +16,19 @@
 			</tbody>
 		</table>
 	</div>
-	<div id="add-product-form" class="form-popup"
-		action="/AdminPage/Products">
+	<div id="add-product-form" class="form-popup" action="/AdminPage/Products">
 		<h3>Add Product</h3>
 		<form id="product-form">
-			<label for="product-name">Name:</label> <input type="text"
-				id="product-name" name="product-name" required> <label
-				for="product-price">Price:</label> <input type="number"
-				id="product-price" name="product-price" required> <label
-				for="product-photo">Photo:</label> <input type="file"
-				id="product-photo" name="product-photo" accept="image/*" required>
+			<label for="title">Title:</label>
+			<input type="text" id="title" name="title" required />
+			<label for="short-desc">Short Description:</label>
+			<input type="text" id="short-desc" name="short-desc" required />
+			<label for="long-desc">Long Description:</label>
+			<input type="text" name="long-desc" required />
+			<input type="text" id="category-name" name="category-name" />
+			<input type="text" id="price" name="price" />
+			<label for="image">Image : </label>
+			<input type="image" id="image" name="image" />
 			<button type="submit">Add Product</button>
 			<button type="button" onclick="hideAddProductForm()">Cancel</button>
 		</form>
