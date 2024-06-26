@@ -36,6 +36,7 @@ public class Item implements IItem {
 		this.lastAccess = lastUpdate;
 		this.categoryName = categoryName;
 		this.price = price;
+		this.imagespaths = new ArrayList<String>();
 		ArrayList<Part> p;
 		if ((p = new ArrayList<Part>()).addAll(images)) {
 			images = p;

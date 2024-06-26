@@ -11,7 +11,7 @@
 					<th>Short Description</th>
 					<th>Long Description</th>
 					<th>Price</th>
-					<th>Photo</th>
+					<th>Photos</th>
 				</tr>
 			</thead>
 			<tbody id="product-table-body">
@@ -22,10 +22,12 @@
 						<td>${item.getShortDesc() }</td>
 						<td>${item.getLongDesc() }</td>
 						<td>${item.getPrice() }</td>
-						<td>${item.getImageURLs() }</td>
+						<td><c:forEach items="${item.getImageURLs()}" var="image">
+								<img src="${image}" alt='image-not-found' />
+							</c:forEach></td>
 					</tr>
 				</c:forEach>
-					
+
 			</tbody>
 		</table>
 	</div>
@@ -33,7 +35,7 @@
 		<h3>Add Product</h3>
 		<form id="product-form" enctype="multipart/form-data"
 			action="<%=request.getContextPath()%>/AdminPage/Products"
-			method="post" >
+			method="post">
 			<div class="row">
 				<label for="title">Title:</label> <input type="text" name="title"
 					required />
@@ -47,7 +49,8 @@
 					name="long-desc" required />
 			</div>
 			<div class="row">
-				<label for='category-name'>Category Name : </label> <select name="category">
+				<label for='category-name'>Category Name : </label> <select
+					name="category">
 					<c:forEach items="${categoryService.getCategories()}"
 						var="category">
 						<option value="${category.getName()}">${category.getName()}</option>
@@ -58,7 +61,8 @@
 				<label for="price"> Price : </label> <input type="text" name="price" />
 			</div>
 			<div class="row">
-				<label for="image">Image : </label> <input type="file" name="image" accept="image/*" multiple="multiple" />
+				<label for="image">Image : </label> <input type="file" name="image"
+					accept="image/*" multiple="multiple" />
 			</div>
 			<div class="row">
 				<button type="submit">Add Product</button>

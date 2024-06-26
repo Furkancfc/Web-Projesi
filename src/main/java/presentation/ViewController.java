@@ -199,8 +199,9 @@ public class ViewController {
 	@Controller
 	class IndexController {
 		@GetMapping(path = { "/", "/CustomerPage/**" })
-		public void getIndexPage(RequestWrapper req, HttpServletResponse resp, Model m) {
-			if (req.getRequestURI().equals(req.getContextPath())) {
+		public void getIndexPage(RequestWrapper req, HttpServletResponse resp) {
+			if (req.getRequestURI().equals(req.getContextPath())
+					|| req.getRequestURI().equals(req.getContextPath() + "/CustomerPage")) {
 				forward("/CustomerPage/Index", "/jsp/CustomerPage/layout.jsp", req, resp);
 				return;
 			}

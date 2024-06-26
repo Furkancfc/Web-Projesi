@@ -98,17 +98,16 @@ public class MainDispatcher extends DispatcherServlet {
 
 	// Utility method to save file to desired location
 	public static final String saveFile(Part part, String fileName) throws IOException {
-		// Define your file saving logic here
-		// Example:
-		String savePath = "images";
-		String filePath = savePath + File.separator + fileName;
-		File fileSaveDir = new File(savePath);
+		
+		String savePath = System.getProperty("wtp.deploy")+context.getServletContext().getContextPath()+"/images";
+		String filePath = savePath + File.separator + part.getSubmittedFileName() + "_" + fileName;
+		File fileSaveDir = new File(filePath);
+		String absolutePath = fileSaveDir.getAbsolutePath();
+		String serverRelativePath= context.getServletContext().getContextPath() + "/images/" + fileSaveDir.getName() ;
 		if (fileSaveDir != null && !fileSaveDir.exists()) {
 			fileSaveDir.mkdirs();
 		}
-
-		part.write(filePath);	
-
-		return filePath; // Return URL or path where the file is saved
+		part.write(absolutePath);
+		return serverRelativePath; // Return URL or path where the file is saved
 	}
 }
