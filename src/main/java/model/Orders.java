@@ -2,46 +2,74 @@ package model;
 
 import webapp.MainDispatcher;
 import java.util.*;
+
+import io.micrometer.common.lang.NonNull;
+import model.interfaces.IOrders;
+
 import java.time.*;
 
-public class Orders {
+public class Orders implements IOrders {
+	private static final long serialVersionUID = 1L;
+	private String userId;
 	private String ordersId;
-	private Account account;
 	private Map<String, Order> orders;
 
 	public class Order {
 		private String orderId;
-		private CartItem cartItem;
 		private String price;
 		private Instant purchaseTime;
+		private CartItem cartItem;
 		public Order(CartItem ci) {
-			this.cartItem = ci;
+			this.orderId = ci.getCartItemId();
 			this.price = ci.getItem().getPrice();
 			this.purchaseTime = Instant.now();
-			this.orderId = MainDispatcher.createRandomId();
 		}
+
 		public CartItem getCartItem() {
 			return cartItem;
 		}
+
 		public String getOrderId() {
 			return orderId;
 		}
+
 		public String getPrice() {
 			return price;
 		}
+
 		public Instant getPurchaseTime() {
 			return purchaseTime;
 		}
 	}
 
-	public Orders(Account ac) {
-		this.ordersId = ac.getUserId();
-		this.account = ac;
+	public Orders(String userId) {
+		this.ordersId = webapp.MainDispatcher.createRandomId();
 		this.orders = new TreeMap<String, Order>();
+		this.userId = userId;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public void setOrders(Map<String, Order> orders) {
+		this.orders = orders;
 	}
 
 	public Map<String, Order> getOrders() {
 		return orders;
+	}
+
+	public void setOrdersId(String ordersId) {
+		this.ordersId = ordersId;
+	}
+
+	public String getOrdersId() {
+		return this.ordersId;
 	}
 
 	public Order getOrder(String cartItemId) {
@@ -52,19 +80,12 @@ public class Orders {
 		orders.put(ci.getCartItemId(), new Order(ci));
 	}
 
-	public Account getAccount() {
-		return this.account;
+	public Order removeOrder(String cartItemId) {
+		return orders.remove(cartItemId);
 	}
 
-	public String getOrdersId() {
-		return this.ordersId;
-	}
-	
-	public String getAccountId() {
-		return getAccount().getUserId();
+	public void setOrder(@NonNull Order o) {
+		orders.put(o.getCartItem().getCartItemId(), o);
 	}
 
-	public void setAccount(Account account) {
-		this.account = account;
-	}
 }

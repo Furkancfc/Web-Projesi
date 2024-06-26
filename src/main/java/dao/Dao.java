@@ -2,8 +2,6 @@ package dao;
 
 import java.util.List;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-
 public interface Dao<T> {
 	public List<T> display();
 

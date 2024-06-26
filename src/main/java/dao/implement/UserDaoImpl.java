@@ -2,6 +2,7 @@ package dao.implement;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import dao.interfaces.UserDao;
@@ -27,8 +29,7 @@ public class UserDaoImpl extends UserDao {
 	}
 
 	public model.Account createUser(Account c) {
-		String sql = "insert into Account values ((?),(?),(?),(?),(?),(?),(?),(?))";
-		new CartDaoImpl().create(c.getUserCart());
+		String sql = "insert into Account values ((?),(?),(?),(?),(?),(?),(?),(?),(?),(?))";
 		return template.execute(sql, new PreparedStatementCallback<Account>() {
 			@Override
 			public Account doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
@@ -36,10 +37,12 @@ public class UserDaoImpl extends UserDao {
 				ps.setString(2, c.getEmail());
 				ps.setString(3, c.getPassword());
 				ps.setString(4, c.getUserId());
-				ps.setString(5, c.getUserCart().getCartId());
-				ps.setBytes(6, IGeneric.getBytes(c));
-				ps.setBytes(7, IGeneric.getBytes(c.getUserCart()));
-				ps.setString(8, c.getAuth());
+				ps.setString(5, c.getCartId());
+				ps.setString(6, c.getOrdersId());
+				ps.setBytes(7, IGeneric.getBytes(c));
+				ps.setBytes(8, IGeneric.getBytes(c.getUserCart()));
+				ps.setBytes(9, IGeneric.getBytes(c.getUserOrders()));
+				ps.setString(10, c.getAuth());
 				ps.execute();
 				return c;
 			}
@@ -60,8 +63,19 @@ public class UserDaoImpl extends UserDao {
 
 	@Override
 	public Account getAccount(String accountId) {
-		String sql = String.format("select * from Account where userId=\"%s\"", accountId);
-		return template.queryForObject(sql, new UserMapper());
+		String sql = "select * from Account where userId=(?)";
+		return template.execute(sql, new PreparedStatementCallback<Account>() {
+			@Override
+			@Nullable
+			public Account doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, accountId);
+				ResultSet rs = ps.executeQuery();
+				if (rs.next()) {
+					return new UserMapper().mapRow(rs, 1);
+				}
+				return null;
+			}
+		});
 
 	}
 
@@ -84,7 +98,7 @@ public class UserDaoImpl extends UserDao {
 
 	@Override
 	public Account updateAccount(Account c) {
-		String sql = "update Account set username=(?), email=(?),pass=(?),userId=(?),cartId=(?),obj=(?),cart=(?),auth=(?) where userId=(?)";
+		String sql = "update Account set username=(?), email=(?), pass=(?), userId=(?), cartId=(?), ordersId=(?), obj=(?),cart=(?),orders=(?),auth=(?) where userId=(?)";
 		return template.execute(sql, new PreparedStatementCallback<Account>() {
 			@Override
 			public Account doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
@@ -92,12 +106,14 @@ public class UserDaoImpl extends UserDao {
 				ps.setString(2, c.getEmail());
 				ps.setString(3, c.getPassword());
 				ps.setString(4, c.getUserId());
-				ps.setString(5, c.getUserCart().getCartId());
-				ps.setBytes(6, IGeneric.getBytes(c));
-				ps.setBytes(7, IGeneric.getBytes(c.getUserCart()));
-				ps.setString(8, c.getAuth());
-				ps.setString(9, c.getUserId());
-				ps.execute();
+				ps.setString(5, c.getCartId());
+				ps.setString(6, c.getOrdersId());
+				ps.setBytes(7, IGeneric.getBytes(c));
+				ps.setBytes(8, IGeneric.getBytes(c.getUserCart()));
+				ps.setBytes(9, IGeneric.getBytes(c.getUserOrders()));
+				ps.setString(10, c.getAuth());
+				ps.setString(11, c.getUserId());
+				ps.executeUpdate();
 				return c;
 			}
 		});

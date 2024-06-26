@@ -34,8 +34,8 @@ public abstract class CategoryDao extends Dao<Category> {
 						c = new Category(null);
 						c.setName(rs.getString("name"));
 						c.setCategoryId(rs.getString("categoryId"));
-						c.setItemIds((Map<String, Item>) IGeneric.getInstance(rs.getBytes("itemIds")));
 						c.setItemCount(rs.getInt("itemCount"));
+						c.setItemIds((Map<String, Item>) IGeneric.getInstance(rs.getBytes("items")));
 						return c;
 					}
 				} else {

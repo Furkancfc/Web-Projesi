@@ -12,7 +12,6 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-
 	<error-page>
 		<error-code>404</error-code>
 		<location>/jsp/error/404.jsp</location>

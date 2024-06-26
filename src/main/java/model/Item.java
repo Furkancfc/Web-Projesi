@@ -1,6 +1,12 @@
 package model;
 
 import java.time.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import io.micrometer.common.lang.NonNull;
+import jakarta.servlet.http.Part;
 import jakarta.persistence.*;
 
 import model.interfaces.IItem;
@@ -12,35 +18,43 @@ public class Item implements IItem {
 	private String title;
 	private String shortDesc;
 	private String longDesc;
-	private String[] imageURIs;
+	private List<String> imagespaths;
 	private Instant createTime; // create time
 	private Instant lastUpdate; // write access
 	private Instant lastAccess; // read access
 	private String categoryName;
 	private String price;
 
-	public Item(String title, String shortDesc, String longDesc, String categoryName,String price) {
+	public Item(@NonNull String title, @NonNull String shortDesc, @NonNull String longDesc,
+			@NonNull String categoryName, Collection<Part> images, @NonNull String price) {
 		this.itemId = MainDispatcher.createRandomId();
-		if (title == null) {
-			System.err.println("Title cannot be null");
-			return;
-		}
 		this.title = title;
 		this.shortDesc = shortDesc;
 		this.longDesc = longDesc;
-		this.imageURIs = null;
 		this.createTime = Instant.now();
-		this.lastUpdate = Instant.now();
-		this.lastAccess = null;
+		this.lastUpdate = createTime;
+		this.lastAccess = lastUpdate;
 		this.categoryName = categoryName;
+		this.price = price;
+		this.imagespaths = new ArrayList<String>();
+		ArrayList<Part> p;
+		if ((p = new ArrayList<Part>()).addAll(images)) {
+			images = p;
+		}
+		for (Part c : images) {
+			if (c.getName().equals("image") && c.getSize() > 0) {
+				try {
+					String filename = createTime.toString() + ".jpeg";
+					String imageurl = MainDispatcher.saveFile(c, filename);
+					addImage(imageurl);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	// getters
-	public String[] getImages() {
-		this.lastAccess = Instant.now();
-		return imageURIs;
-	}
-
 	public Instant getCreateTime() {
 		this.lastAccess = Instant.now();
 		return createTime;
@@ -80,8 +94,8 @@ public class Item implements IItem {
 		return categoryName;
 	}
 
-	public String[] getImageURIs() {
-		return imageURIs;
+	public List<String> getImageURLs() {
+		return imagespaths;
 	}
 
 	public String getPrice() {
@@ -89,9 +103,9 @@ public class Item implements IItem {
 	}
 
 	// setters
-	public void setImageURI(String[] imageURIs) {
+	public void setImageURI(List<String> images) {
 		this.lastUpdate = Instant.now();
-		this.imageURIs = imageURIs;
+		this.imagespaths = images;
 	}
 
 	public void setLongDesc(String longDesc) {
@@ -113,10 +127,6 @@ public class Item implements IItem {
 		this.createTime = createTime;
 	}
 
-	public void setImageURIs(String[] imageURIs) {
-		this.imageURIs = imageURIs;
-	}
-
 	public void setItemId(String itemId) {
 		this.itemId = itemId;
 	}
@@ -135,5 +145,11 @@ public class Item implements IItem {
 
 	public void setPrice(String price) {
 		this.price = price;
+	}
+
+	public void addImage(String imageURL) {
+		if (imageURL != null) {
+			this.imagespaths.add(imageURL);
+		}
 	}
 }
