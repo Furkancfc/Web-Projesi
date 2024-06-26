@@ -1,56 +1,63 @@
 USE webproject2;
-CREATE TABLE Account (
-	username varchar(20),
-	email varchar(20) primary key not null ,
-	pass varchar(20) not null ,
-	userId varchar(128) not null unique ,
-	cartId varchar(128) not null unique ,
-	ordersId varchar(128) not null unique,
-	obj blob not null,
-	cart blob not null,
-	orders blob not null,
-	auth varchar(32) not null
-);
-CREATE TABLE Cart (
-	cartId varchar(128) primary key not null ,
-	userId varchar(128) not null unique,
-	items blob ,
-	lastUpdate bigint ,
-	obj blob not null 
+-- Create table if it does not exist
+CREATE TABLE IF NOT EXISTS Account (
+    username VARCHAR(20),
+    email VARCHAR(20) PRIMARY KEY NOT NULL,
+    pass VARCHAR(20) NOT NULL,
+    userId VARCHAR(128) NOT NULL UNIQUE,
+    cartId VARCHAR(128) NOT NULL UNIQUE,
+    ordersId VARCHAR(128) NOT NULL UNIQUE,
+    obj BLOB NOT NULL,
+    cart BLOB NOT NULL,
+    orders BLOB NOT NULL,
+    auth VARCHAR(32) NOT NULL
 );
 
-CREATE TABLE Category(
-	name varchar(20) not null unique,
-	categoryId varchar(128) primary key not null ,
-	itemCount INT,
-	items blob ,
-	obj blob not null 
-);
-CREATE TABLE Item(
-	itemId varchar(128) primary key not null ,
-	title varchar(20) not null ,
-	shortDesc varchar(32) not null ,
-	longDesc varchar(128) not null ,
-	imageURIs blob ,
-	createTime bigint ,
-	lastUpdate bigint ,
-	lastAccess bigint ,
-	obj blob not null ,
-	categoryName varchar(32),
-	price varchar(32)
+CREATE TABLE IF NOT EXISTS Cart (
+    cartId VARCHAR(128) PRIMARY KEY NOT NULL,
+    userId VARCHAR(128) NOT NULL UNIQUE,
+    items BLOB,
+    lastUpdate BIGINT,
+    obj BLOB NOT NULL
 );
 
-CREATE TABLE CartItem(
-	cartId varchar(128) not null,
-	itemId varchar(128) primary key not null ,
-	listingTime bigint ,
-	item blob not null ,
-	itemCount SMALLINT ,
-	obj blob not null
+CREATE TABLE IF NOT EXISTS Category (
+    name VARCHAR(20) NOT NULL UNIQUE,
+    categoryId VARCHAR(128) PRIMARY KEY NOT NULL,
+    itemCount INT,
+    items BLOB,
+    obj BLOB NOT NULL
 );
-create table Orders(
-	ordersId varchar(128) primary key not null,
-	userId varchar(128) unique not null,
-	ordersList blob not null,
-	obj blob not null
+
+-- Create table if it does not exist
+CREATE TABLE IF NOT EXISTS Item (
+    itemId VARCHAR(128) PRIMARY KEY NOT NULL,
+    title VARCHAR(32) NOT NULL,
+    shortDesc VARCHAR(32) NOT NULL,
+    longDesc VARCHAR(128) NOT NULL,
+    imageURIs BLOB,
+    createTime BIGINT,
+    lastUpdate BIGINT,
+    lastAccess BIGINT,
+    obj BLOB NOT NULL,
+    categoryName VARCHAR(32),
+    price VARCHAR(32)
 );
+
+-- Create table if it does not exist
+CREATE TABLE IF NOT EXISTS CartItem (
+    cartId VARCHAR(128) NOT NULL,
+    itemId VARCHAR(128) PRIMARY KEY NOT NULL,
+    listingTime BIGINT,
+    item BLOB NOT NULL,
+    itemCount SMALLINT,
+    obj BLOB NOT NULL
+);
+
+-- Create table if it does not exist
+CREATE TABLE IF NOT EXISTS Orders (
+    ordersId VARCHAR(128) PRIMARY KEY NOT NULL,
+    userId VARCHAR(128) UNIQUE NOT NULL,
+    ordersList BLOB NOT NULL,
+    obj BLOB NOT NULL
+ );

@@ -7,6 +7,7 @@
 			<thead>
 				<tr>
 					<th>ID</th>
+					<th>Category</th>
 					<th>Title</th>
 					<th>Short Description</th>
 					<th>Long Description</th>
@@ -18,6 +19,7 @@
 				<c:forEach items="${itemService.getItems()}" var="item">
 					<tr>
 						<td>${item.getItemId() }</td>
+						<td>${item.getCategoryName()}</td>
 						<td>${item.getTitle() }</td>
 						<td>${item.getShortDesc() }</td>
 						<td>${item.getLongDesc() }</td>
