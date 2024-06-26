@@ -1,5 +1,7 @@
 package service.implement;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,5 +24,7 @@ public class ItemServiceImpl extends service.interfaces.ItemService {
 	public Item updateItem(Item t) {
 		return itemDao.update(t);
 	}
-
+	public List<Item> getItems(){
+		return itemDao.getItems();
+	}
 }

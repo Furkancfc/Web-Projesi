@@ -26,7 +26,7 @@ public abstract class CartDao extends Dao<Cart> {
 
 	public abstract CartItem getCartItem(model.Cart c, model.CartItem item);
 
-	public abstract Map<String, CartItem> getCartItems(model.Cart c);
+	public abstract List<CartItem> getCartItems(model.Cart c);
 
 	public abstract void getCart(model.Cart c);
 
@@ -41,11 +41,13 @@ public abstract class CartDao extends Dao<Cart> {
 				if (ci != null) {
 					return ci;
 				} else {
-					long listingTime = rs.getLong("listingTime");
+					String cartId = rs.getString("cartId");
 					String itemId = rs.getString("itemId");
-					short itemCount = rs.getShort("itemCount");
+					long listingTime = rs.getLong("listingTime");
 					Item item = (Item) IGeneric.getInstance(rs.getBytes("item"));
-					ci = new CartItem(item);
+					short itemCount = rs.getShort("itemCount");
+					ci = new CartItem(item, cartId);
+					ci.setCartItemId(itemId);
 					ci.setItemCount(itemCount);
 					ci.setListingTime(Instant.ofEpochMilli(listingTime));
 					ci.setItemId(itemId);
@@ -62,6 +64,14 @@ public abstract class CartDao extends Dao<Cart> {
 		public Cart mapRow(ResultSet rs, int rowNum) throws SQLException {
 			Cart c = (Cart) model.interfaces.IGeneric.getInstance(rs.getBytes("obj"));
 			if (c != null) {
+				String cartId = rs.getString("cartId");
+				String userId = rs.getString("userId");
+				Map<String, CartItem> items = (Map<String, CartItem>) IGeneric.getInstance(rs.getBytes("items"));
+				long lastUpdate = rs.getLong("lastUpdate");
+				c.setCartId(cartId);
+				c.setUserId(userId);
+				c.setItems(items);
+				c.setLastUpdate(Instant.ofEpochMilli(lastUpdate));
 				return c;
 			} else {
 				return null;

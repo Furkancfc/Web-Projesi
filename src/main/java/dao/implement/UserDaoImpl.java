@@ -27,8 +27,7 @@ public class UserDaoImpl extends UserDao {
 	}
 
 	public model.Account createUser(Account c) {
-		String sql = "insert into Account values ((?),(?),(?),(?),(?),(?),(?),(?))";
-		new CartDaoImpl().create(c.getUserCart());
+		String sql = "insert into Account values ((?),(?),(?),(?),(?),(?),(?),(?),(?),(?))";
 		return template.execute(sql, new PreparedStatementCallback<Account>() {
 			@Override
 			public Account doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
@@ -36,10 +35,12 @@ public class UserDaoImpl extends UserDao {
 				ps.setString(2, c.getEmail());
 				ps.setString(3, c.getPassword());
 				ps.setString(4, c.getUserId());
-				ps.setString(5, c.getUserCart().getCartId());
-				ps.setBytes(6, IGeneric.getBytes(c));
-				ps.setBytes(7, IGeneric.getBytes(c.getUserCart()));
-				ps.setString(8, c.getAuth());
+				ps.setString(5, c.getCartId());
+				ps.setString(6, c.getOrdersId());
+				ps.setBytes(7, IGeneric.getBytes(c));
+				ps.setBytes(8, IGeneric.getBytes(c.getUserCart()));
+				ps.setBytes(9, IGeneric.getBytes(c.getUserOrders()));
+				ps.setString(10, c.getAuth());
 				ps.execute();
 				return c;
 			}
@@ -84,7 +85,7 @@ public class UserDaoImpl extends UserDao {
 
 	@Override
 	public Account updateAccount(Account c) {
-		String sql = "update Account set username=(?), email=(?),pass=(?),userId=(?),cartId=(?),obj=(?),cart=(?),auth=(?) where userId=(?)";
+		String sql = "update Account set username=(?), email=(?), pass=(?), userId=(?), cartId=(?), ordersId=(?), obj=(?),cart=(?),orders=(?),auth=(?) where userId=(?)";
 		return template.execute(sql, new PreparedStatementCallback<Account>() {
 			@Override
 			public Account doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
@@ -92,11 +93,12 @@ public class UserDaoImpl extends UserDao {
 				ps.setString(2, c.getEmail());
 				ps.setString(3, c.getPassword());
 				ps.setString(4, c.getUserId());
-				ps.setString(5, c.getUserCart().getCartId());
-				ps.setBytes(6, IGeneric.getBytes(c));
-				ps.setBytes(7, IGeneric.getBytes(c.getUserCart()));
-				ps.setString(8, c.getAuth());
-				ps.setString(9, c.getUserId());
+				ps.setString(5, c.getCartId());
+				ps.setString(6, c.getOrdersId());
+				ps.setBytes(7, IGeneric.getBytes(c));
+				ps.setBytes(8, IGeneric.getBytes(c.getUserCart()));
+				ps.setBytes(9, IGeneric.getBytes(c.getUserOrders()));
+				ps.setString(10, c.getAuth());
 				ps.execute();
 				return c;
 			}

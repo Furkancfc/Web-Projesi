@@ -32,7 +32,7 @@ public class ItemDaoImpl extends ItemDao {
 
 	@Override
 	public Item create(Item t) {
-		String sql = "insert into values ((?),(?),(?),(?),(?),(?),(?),(?),(?),(?))";
+		String sql = "insert into Item values ((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))";
 		return template.execute(sql, new PreparedStatementCallback<Item>() {
 			@Override
 			public Item doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
@@ -40,12 +40,13 @@ public class ItemDaoImpl extends ItemDao {
 				ps.setString(2, t.getTitle());
 				ps.setString(3, t.getShortDesc());
 				ps.setString(4, t.getLongDesc());
-				ps.setBytes(5, IGeneric.getBytes(t.getImageURIs()));
+				ps.setBytes(5, IGeneric.getBytes(t.getImageURLs()));
 				ps.setLong(6, t.getCreateTime().toEpochMilli());
 				ps.setLong(7, t.getLastUpdate().toEpochMilli());
 				ps.setLong(8, t.getLastAccess().toEpochMilli());
 				ps.setBytes(9, IGeneric.getBytes(t));
 				ps.setString(10, t.getCategoryName());
+				ps.setString(11, t.getPrice());
 				ps.execute();
 				return t;
 			}
@@ -66,14 +67,14 @@ public class ItemDaoImpl extends ItemDao {
 
 	@Override
 	public Item update(Item t) {
-		String sql = "UPDATE webproject2.Item SET title=(?), shortDesc=(?), longDesc=(?), imageURIs=(?), createTime=(?), lastUpdate=(?), lastAccess=(?), obj=(?), categoryName=(?) WHERE itemId=(?)";
+		String sql = "UPDATE Item SET title=(?), shortDesc=(?), longDesc=(?), imageURIs=(?), createTime=(?), lastUpdate=(?), lastAccess=(?), obj=(?), categoryName=(?) WHERE itemId=(?)";
 		return template.execute(sql, new PreparedStatementCallback<Item>() {
 			@Override
 			public Item doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				ps.setString(1, t.getTitle());
 				ps.setString(2, t.getShortDesc());
 				ps.setString(3, t.getLongDesc());
-				ps.setBytes(4, IGeneric.getBytes(t.getImageURIs()));
+				ps.setBytes(4, IGeneric.getBytes(t.getImageURLs()));
 				ps.setLong(5, t.getCreateTime().toEpochMilli());
 				ps.setLong(6, t.getLastUpdate().toEpochMilli());
 				ps.setLong(7, t.getLastAccess().toEpochMilli());
@@ -83,6 +84,11 @@ public class ItemDaoImpl extends ItemDao {
 				return t;
 			}
 		});
+	}
+
+	public List<Item> getItems() {
+		String sql = "select * from Item";
+		return template.query(sql, new ItemMapper());
 	}
 
 }

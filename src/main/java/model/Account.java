@@ -21,22 +21,32 @@ public class Account implements IAccount {
 	private String username;
 	private String email;
 	private String password;
-	private String userId;
 	private Instant createTime;
+	private String auth;
+
 	private Cart userCart;
 	private Orders orders;
-	private String auth;
+
+	private String userId;
+	private String cartId;
+	private String ordersId;
 
 	public Account(String email, String password, String username, String auth) {
 		lock = new ReentrantLock();
-		this.userId = MainDispatcher.createRandomId();
 		this.email = email;
 		this.password = Base64.getEncoder().encodeToString(password.getBytes());
 		this.username = username;
 		this.createTime = Instant.now();
-		this.userCart = new Cart();
-		this.orders = new Orders(this);
 		this.auth = auth;
+
+		this.userId = MainDispatcher.createRandomId();
+
+		this.userCart = new Cart(this.userId);
+		this.orders = new Orders(this.userId);
+
+		this.cartId = this.userCart.getCartId();
+		this.ordersId = this.orders.getOrdersId();
+
 	}
 
 	public String getAuth() {
@@ -102,6 +112,7 @@ public class Account implements IAccount {
 
 	public void setUserCart(Cart userCart) {
 		this.userCart = userCart;
+		this.cartId = userCart.getCartId();
 	}
 
 	public void setUserId(String userId) {
@@ -118,5 +129,42 @@ public class Account implements IAccount {
 
 	public String getUserId() {
 		return userId;
+	}
+
+	public Orders getUserOrders() {
+		return orders;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUserOrders(Orders orders) {
+		this.orders = orders;
+		this.ordersId = orders.getOrdersId();
+	}
+
+	public String getCartId() {
+		return cartId;
+	}
+
+	public Orders getOrders() {
+		return orders;
+	}
+
+	public String getOrdersId() {
+		return ordersId;
+	}
+
+	public void setCartId(String cartId) {
+		this.cartId = cartId;
+	}
+
+	public void setOrders(Orders orders) {
+		this.orders = orders;
+	}
+
+	public void setOrdersId(String ordersId) {
+		this.ordersId = ordersId;
 	}
 }

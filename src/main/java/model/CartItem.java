@@ -3,15 +3,17 @@ package model;
 import java.time.Instant;
 import jakarta.persistence.*;
 import webapp.MainDispatcher;
+
 public class CartItem {
+	private String cartId;
 	private String itemId;
 	private Instant listingTime;
 	private Item item;
 	private int itemCount;
 
-	public CartItem(Item item) {
+	public CartItem(Item item, String cartId) {
 		if (item != null) {
-			this.itemId = MainDispatcher.createRandomId();
+			this.cartId = cartId;
 			this.itemCount = 1;
 			this.item = item;
 			this.itemId = item.getItemId();
@@ -35,9 +37,11 @@ public class CartItem {
 	public Instant getListingTime() {
 		return listingTime;
 	}
+
 	public String getCartItemId() {
 		return itemId;
 	}
+
 	public void setListingTime(Instant listingTime) {
 		this.listingTime = listingTime;
 	}
@@ -53,6 +57,7 @@ public class CartItem {
 	public void setItemId(String itemId) {
 		this.itemId = itemId;
 	}
+
 	public void setCartItemId(String cartItemId) {
 		this.itemId = cartItemId;
 	}
@@ -63,6 +68,14 @@ public class CartItem {
 
 	public void decrement() {
 		this.itemCount -= 1;
+	}
+
+	public String getCartId() {
+		return cartId;
+	}
+
+	public void setCartId(String cartId) {
+		this.cartId = cartId;
 	}
 
 }

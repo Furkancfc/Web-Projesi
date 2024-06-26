@@ -1,36 +1,69 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <section id="products">
 	<h2>Manage Products</h2>
-	<button onclick="showAddProductForm()">Add Product</button>
+	<button id="add-product-button">Add Product</button>
 	<div id="product-list">
 		<table>
 			<thead>
 				<tr>
 					<th>ID</th>
-					<th>Name</th>
+					<th>Title</th>
+					<th>Short Description</th>
+					<th>Long Description</th>
 					<th>Price</th>
 					<th>Photo</th>
 				</tr>
 			</thead>
 			<tbody id="product-table-body">
-				<!-- Product rows will be added here dynamically -->
+				<c:forEach items="${itemService.getItems()}" var="item">
+					<tr>
+						<td>${item.getItemId() }</td>
+						<td>${item.getTitle() }</td>
+						<td>${item.getShortDesc() }</td>
+						<td>${item.getLongDesc() }</td>
+						<td>${item.getPrice() }</td>
+						<td>${item.getImageURLs() }</td>
+					</tr>
+				</c:forEach>
+					
 			</tbody>
 		</table>
 	</div>
-	<div id="add-product-form" class="form-popup" action="/AdminPage/Products">
+	<div id="add-product-form" class="form-popup">
 		<h3>Add Product</h3>
-		<form id="product-form">
-			<label for="title">Title:</label>
-			<input type="text" id="title" name="title" required />
-			<label for="short-desc">Short Description:</label>
-			<input type="text" id="short-desc" name="short-desc" required />
-			<label for="long-desc">Long Description:</label>
-			<input type="text" name="long-desc" required />
-			<input type="text" id="category-name" name="category-name" />
-			<input type="text" id="price" name="price" />
-			<label for="image">Image : </label>
-			<input type="image" id="image" name="image" />
-			<button type="submit">Add Product</button>
-			<button type="button" onclick="hideAddProductForm()">Cancel</button>
+		<form id="product-form" enctype="multipart/form-data"
+			action="<%=request.getContextPath()%>/AdminPage/Products"
+			method="post" >
+			<div class="row">
+				<label for="title">Title:</label> <input type="text" name="title"
+					required />
+			</div>
+			<div class="row">
+				<label for="short-desc">Short Description:</label> <input
+					type="text" name="short-desc" required />
+			</div>
+			<div class="row">
+				<label for="long-desc">Long Description:</label> <input type="text"
+					name="long-desc" required />
+			</div>
+			<div class="row">
+				<label for='category-name'>Category Name : </label> <select name="category">
+					<c:forEach items="${categoryService.getCategories()}"
+						var="category">
+						<option value="${category.getName()}">${category.getName()}</option>
+					</c:forEach>
+				</select>
+			</div>
+			<div class='row'>
+				<label for="price"> Price : </label> <input type="text" name="price" />
+			</div>
+			<div class="row">
+				<label for="image">Image : </label> <input type="file" name="image" accept="image/*" multiple="multiple" />
+			</div>
+			<div class="row">
+				<button type="submit">Add Product</button>
+				<button type="button" id='add-product-cancel-button'>Cancel</button>
+			</div>
 		</form>
 	</div>
 </section>

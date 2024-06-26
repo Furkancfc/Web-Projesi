@@ -24,13 +24,28 @@
 <c:catch>
 	<script src="${pageJs}" /></script>
 </c:catch>
-<c:catch>
+<c:catch var="exception">
 	<c:import url="${pageHead}" />
 </c:catch>
 </head>
 <body>
-	<c:catch>
-		<jsp:include page="${pageContent}" />
-	</c:catch>
+	<header>
+		<nav>
+			<ul>
+				<li><a href="<%=request.getContextPath()%>/AdminPage/Index">Index</a></li>
+				<li><a href="<%=request.getContextPath()%>/AdminPage/Dashboard">Dashboard</a></li>
+				<li><a href="<%=request.getContextPath()%>/AdminPage/Orders">Orders</a></li>
+				<li><a href="<%=request.getContextPath()%>/AdminPage/Products">Products</a></li>
+				<li><a href="<%=request.getContextPath()%>/AdminPage/Users">Users</a></li>
+				<li><a
+					href="<%=request.getContextPath()%>/AdminPage/Categories">Categories</a></li>
+			</ul>
+		</nav>
+	</header>
+	<main>
+		<c:catch>
+			<jsp:include page="${pageContent}" />
+		</c:catch>
+	</main>
 </body>
 </html>

@@ -2,6 +2,9 @@ package dao.interfaces;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
+
+import jakarta.servlet.http.Part;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -21,13 +24,13 @@ public abstract class ItemDao extends Dao<model.Item> {
 				String title = rs.getString("title");
 				String shortDesc = rs.getString("shortDesc");
 				String longDesc = rs.getString("longDesc");
-				String imageUris[] = (String[]) IGeneric.getInstance(rs.getBytes("imageURIs"));
+				Collection<Part> images = (Collection<Part>) IGeneric.getInstance(rs.getBytes("images"));
 				long createTime = rs.getLong("createTime");
 				long lastUpdate = rs.getLong("lastUpdate");
 				long lastAccess = rs.getLong("lastAccess");
 				String categoryName = rs.getString("categoryName");
 				String price = rs.getString("price");
-				i = new Item(title, shortDesc, longDesc, categoryName, imageUris, price);
+				i = new Item(title, shortDesc, longDesc, categoryName, images, price);
 				return i;
 			} else {
 				return null;

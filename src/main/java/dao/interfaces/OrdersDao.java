@@ -2,15 +2,17 @@ package dao.interfaces;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import org.springframework.jdbc.core.RowMapper;
 
 import model.Account;
 import model.CartItem;
 import model.Orders;
+import model.Orders.Order;
 import model.interfaces.IGeneric;
 
-public abstract class OrderDao extends Dao<model.Orders> {
+public abstract class OrdersDao extends Dao<model.Orders> {
 
 	public class OrderMapper implements RowMapper<model.Orders> {
 
@@ -18,13 +20,12 @@ public abstract class OrderDao extends Dao<model.Orders> {
 		public Orders mapRow(ResultSet rs, int rowNum) throws SQLException {
 			Orders order = (Orders) IGeneric.getInstance(rs.getBytes("obj"));
 			if (order == null) {
-				String orderId = rs.getString("orderId");
-				String accountId = rs.getString("accountId");
-				String cartItemId = rs.getString("cartItemId");
-				Account ac = (Account) IGeneric.getInstance(rs.getBytes("accountObj"));
-				CartItem ci = (CartItem) IGeneric.getInstance(rs.getBytes("cartItemObj"));
-				order = new Orders(ac);
-				order.addOrder(ci);
+				String ordersId = rs.getString("ordersId");
+				String userId = rs.getString("userId");
+				Map<String, Order> orders = (Map<String, Order>) IGeneric.getInstance(rs.getBytes("ordersList"));
+				order = new Orders(userId);
+				order.setOrders(orders);
+				order.setOrdersId(ordersId);
 				return order;
 			} else {
 				return order;

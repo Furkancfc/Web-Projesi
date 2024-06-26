@@ -1,5 +1,6 @@
 package presentation;
 
+import java.awt.PageAttributes.MediaType;
 import java.awt.datatransfer.MimeTypeParseException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -7,7 +8,9 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,21 +24,25 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.i18n.AcceptHeaderLocaleContextResolver;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.function.ServerRequest.Headers;
 
 import io.micrometer.common.lang.NonNull;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import model.Account;
 import model.Category;
 import model.Item;
 import webapp.*;
 
+@MultipartConfig
 @Controller
 public class ViewController {
 
@@ -47,6 +54,8 @@ public class ViewController {
 	private service.implement.CategoryServiceImpl categoryService;
 	@Autowired
 	private service.implement.ItemServiceImpl itemService;
+	@Autowired
+	private service.implement.OrdersServiceImpl ordersService;
 
 	private RequestWrapper rw;
 	public String pageName;
@@ -92,11 +101,11 @@ public class ViewController {
 			this.pageHead = "/jsp" + page + "/head.jsp";
 			System.out.println(pageContent);
 			req.setAttribute("page", page);
-			req.setAttribute("pageContent", pageContent);
 			req.setAttribute("pageCss", pageCss);
 			req.setAttribute("pageJs", pageJs);
 			req.setAttribute("pageHead", pageHead);
 		}
+		req.setAttribute("pageContent", pageContent);
 	}
 
 	/**
@@ -131,12 +140,13 @@ public class ViewController {
 		}
 	}
 
+	@MultipartConfig
 	@Controller
 	class AdminController {
 		static final String name = "/AdminPage";
 		static final String layout = "/jsp/AdminPage/layout.jsp";
 
-		@GetMapping(path = { name, name + "/**" })
+		@GetMapping(path = { name, name + "/{page}" })
 		public void doGet(RequestWrapper req, HttpServletResponse resp) {
 			if (req.getRequestURI().equals(req.getContextPath() + name)) {
 				forward("/AdminPage/Index", layout, req, resp);
@@ -146,28 +156,43 @@ public class ViewController {
 			return;
 		}
 
-		@PostMapping(path = { name + "/categories" })
+		@PostMapping(path = { name + "/Categories" })
 		public void postManageCategory(RequestWrapper req, HttpServletResponse resp) {
-			if (req.getParameter("addCategory") != null) {
-				String name = (String) req.getParameter("name");
-				if (name != null) {
-					categoryService.addCategory(new Category(name));
-//					forward("/AdminPage/", layout, req, resp);
-				} else {
-					forward("/AdminPage", layout, req, resp);
-				}
+			String name = (String) req.getParameter("name");
+			if (name != null) {
+				categoryService.addCategory(new Category(name));
+				forward("/AdminPage", layout, req, resp);
+			} else {
+				forward("/AdminPage", layout, req, resp);
 			}
 		}
 
 		@PostMapping(path = { name + "/Products" })
 		public void postProduct(RequestWrapper req, HttpServletResponse resp) {
 			String title = req.getParameter("title");
-			String shortDesc = req.getParameter("shortDesc");
-			String longDesc = req.getParameter("longDesc");
-			String categoryName = req.getParameter("categoryName");
-			String price = req.getParameter("product-price");
-			String[] imageURIs = null;// req.getParameter("product-photo");
-			itemService.addItem(new Item(title, shortDesc, longDesc, categoryName, imageURIs, price));
+			String shortDesc = req.getParameter("short-desc");
+			String longDesc = req.getParameter("long-desc");
+			String categoryName = req.getParameter("category");
+			String price = req.getParameter("price");
+			Collection<Part> parts;
+			try {
+				parts = req.getParts();
+			} catch (Exception e) {
+				e.printStackTrace();
+				parts = null;
+
+			}
+			itemService.addItem(new Item(title, shortDesc, longDesc, categoryName, parts, price));
+			forward(name + "/Products", layout, req, resp);
+		}
+
+		@PostMapping(path = { name + "/Users" })
+		public void postUsers(RequestWrapper req, HttpServletResponse resp) {
+			String username = req.getParameter("user-name");
+			String email = req.getParameter("user-email");
+			String password = req.getParameter("user-password");
+			String auth = req.getParameter("auth");
+			userService.createUser(new Account(email, password, username, auth));
 		}
 	}
 
@@ -271,6 +296,7 @@ public class ViewController {
 			req.getServletContext().setAttribute("userService", userService);
 			req.getServletContext().setAttribute("cartService", cartService);
 			req.getServletContext().setAttribute("itemService", itemService);
+			req.getServletContext().setAttribute("ordersService", ordersService);
 			return HandlerInterceptor.super.preHandle(rw, resp, handler);
 		}
 

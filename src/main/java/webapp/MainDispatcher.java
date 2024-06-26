@@ -2,6 +2,7 @@ package webapp;
 
 import model.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,13 +37,16 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
-
-@Controller
+@WebServlet
+@MultipartConfig
 public class MainDispatcher extends DispatcherServlet {
 
 	private static final long serialVersionUID = -2020821112498604792L;
@@ -81,4 +85,30 @@ public class MainDispatcher extends DispatcherServlet {
 		return context;
 	}
 
+	public static final String getFileName(Part part) {
+		String contentDisposition = part.getHeader("content-disposition");
+		String[] tokens = contentDisposition.split(";");
+		for (String token : tokens) {
+			if (token.trim().startsWith("filename")) {
+				return token.substring(token.indexOf('=') + 1).trim().replace("\"", "");
+			}
+		}
+		return "unknown";
+	}
+
+	// Utility method to save file to desired location
+	public static final String saveFile(Part part, String fileName) throws IOException {
+		// Define your file saving logic here
+		// Example:
+		String savePath = "images";
+		String filePath = savePath + File.separator + fileName;
+		File fileSaveDir = new File(savePath);
+		if (fileSaveDir != null && !fileSaveDir.exists()) {
+			fileSaveDir.mkdirs();
+		}
+
+		part.write(filePath);	
+
+		return filePath; // Return URL or path where the file is saved
+	}
 }

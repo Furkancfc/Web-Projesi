@@ -26,6 +26,7 @@
 		<property name="prefix" value="/"></property>
 		<property name="suffix" value=".js"></property>
 	</bean>
+
 	<bean id="ds" name="dataSource"
 		class='org.springframework.jdbc.datasource.DriverManagerDataSource'
 		autowire="byName">
@@ -56,6 +57,10 @@
 		class='dao.implement.UserDaoImpl' autowire="byName">
 		<!-- <property name="template" ref="jdbcTemplate"></property> -->
 	</bean>
+	<bean id='ordersDao' name='ordersDao' autowire="byName"
+		class='dao.implement.OrdersDaoImpl'>
+
+	</bean>
 	<bean id="categoryService"
 		class="service.implement.CategoryServiceImpl" autowire="byName">
 		<!-- <property name="categoryDao" ref="categoryDao" /> -->
@@ -71,6 +76,10 @@
 	<bean id="userService" class="service.implement.UserServiceImpl"
 		autowire="byName">
 		<!-- <property name="userDao" ref="userDao"></property> -->
+	</bean>
+	<bean id='ordersService'
+		class='service.implement.OrdersServiceImpl'>
+
 	</bean>
 	<mvc:interceptors>
 		<mvc:interceptor>
