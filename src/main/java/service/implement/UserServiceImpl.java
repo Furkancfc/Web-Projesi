@@ -25,7 +25,6 @@ public class UserServiceImpl extends service.interfaces.UserService {
 	public Account getUser(String userId) {
 		return userDao.getAccount(userId);
 	}
-
 	public List<Account> getUsers() {
 		return userDao.getAccounts();
 	}
@@ -40,6 +39,9 @@ public class UserServiceImpl extends service.interfaces.UserService {
 		cartDao.update(account.getCart());
 		ordersDao.update(account.getOrders());
 		return userDao.update(account);
+	}
+	public Account getUserForEmail(String userId){
+		return userDao.getAccountForEmail(userId);
 	}
 
 }

@@ -9,25 +9,9 @@
 	<div class="product-grid">
 		<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 		<c:forEach items="${itemService.getItems()}" var="item">
-			<c:choose>
-				<c:when
-					test="${request.getParameter('Category') != null && item.getCategoryName() == request.getParameter('Category')}">
-					<div class="product-item">
-						<img src="${item.getImageURLs().get(0)}" alt="${item.getTitle()}">
-						<h3>${item.getTitle()}</h3>
-						<p>${item.getPrice()}</p>
-						<button class="add-to-cart">Add to Cart</button>
-					</div>
-				</c:when>
-				<c:otherwise>
-					<div class="product-item">
-						<img src="${item.getImageURLs().get(0)}" alt="${item.getTitle()}">
-						<h3>${item.getTitle()}</h3>
-						<p>${item.getPrice()}</p>
-						<button class="add-to-cart">Add to Cart</button>
-					</div>
-				</c:otherwise>
-			</c:choose>
+			<div class='product-item'>
+				${item}
+			</div>
 		</c:forEach>
 	</div>
 </section>

@@ -1,6 +1,7 @@
 package dao.implement;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -31,9 +32,36 @@ public class UserDaoImpl extends UserDao {
 	}
 
 	public Account getAccount(String accountId) {
-		String sql = String.format("select * from Account where userId=\"%s\"", accountId);
-		return template.queryForObject(sql, new UserMapper());
+		String sql = "select * from Account where userId=(?)";
+		return template.execute(sql, new PreparedStatementCallback<Account>() {
+			@Override
+			@Nullable
+			public Account doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, accountId);
+				ResultSet rs = ps.executeQuery();
+				if (rs.next()) {
+					new UserMapper().mapRow(rs, rs.getRow());
+				}
+				return null;
+			}
+		});
+	}
 
+	public Account getAccountForEmail(String email) {
+		String sql = "select * from Account where email=(?)";
+		return template.execute(sql, new PreparedStatementCallback<Account>() {
+			@Override
+			@Nullable
+			public Account doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, email);
+				ResultSet rs = ps.executeQuery();
+				if (rs.next()) {
+					return new UserMapper().mapRow(rs, rs.getRow());
+				} else {
+					return null;
+				}
+			}
+		});
 	}
 
 	public Account addAccount(Account c) {

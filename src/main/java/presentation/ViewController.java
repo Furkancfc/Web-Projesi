@@ -169,6 +169,7 @@ public class ViewController {
 			String password = req.getParameter("user-password");
 			String auth = req.getParameter("auth");
 			userService.createUser(new Account(email, password, username, auth));
+			redirect(name+"/Users", req, resp);
 		}
 	}
 
@@ -198,18 +199,18 @@ public class ViewController {
 				if (!checkSession(req, resp))
 					forward("/login", "/jsp/template/layout.jsp", req, resp);
 				else
-					redirect("/index", req, resp);
+					redirect("/CustomerPage", req, resp);
 			}
 
 			@PostMapping("/login")
 			public void postLogin(RequestWrapper req, HttpServletResponse resp) {
 				String email = req.getParameter("email");
 				String password = req.getParameter("password");
-				Account ac = MainDispatcher.getUser(email);
+				Account ac = userService.getUserForEmail(email);
 				if (ac != null && ac.getPassword().equals(password)) {
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
-					redirect("/index", req, resp);
+					redirect("/CustomerPage", req, resp);
 				} else {
 					forward("/login", "/jsp/template/layout.jsp", req, resp);
 				}
@@ -223,7 +224,7 @@ public class ViewController {
 				if (!checkSession(req, resp)) {
 					forward("/signup", "/jsp/template/layout.jsp", req, resp);
 				} else {
-					redirect("/index", req, resp);
+					redirect("/CustomerPage", req, resp);
 				}
 			}
 
@@ -238,7 +239,7 @@ public class ViewController {
 					MainDispatcher.putUser(ac);
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
-					redirect("/index", req, resp);
+					redirect("/CustomerPage", req, resp);
 				} else {
 					forward("/signup", "/jsp/template/layout.jsp", req, resp);
 				}
