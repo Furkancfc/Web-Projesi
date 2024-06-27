@@ -124,10 +124,10 @@ public class ViewController {
 		static final String name = "/AdminPage";
 		static final String layout = "/jsp/AdminPage/layout.jsp";
 
-		@GetMapping(path = { name, name + "/{page}" })
+		@GetMapping(path = { name, name + "/**" })
 		public void doGet(RequestWrapper req, HttpServletResponse resp) {
 			if (req.getRequestURI().equals(req.getContextPath() + name)) {
-				forward("/AdminPage/Index", layout, req, resp);
+				forward("/AdminPage/Dashboard", layout, req, resp);
 				return;
 			}
 			forward(req.getRequestURI(), layout, req, resp);
@@ -139,10 +139,8 @@ public class ViewController {
 			String name = (String) req.getParameter("name");
 			if (name != null) {
 				categoryService.addCategory(new Category(name));
-				forward("/AdminPage", layout, req, resp);
-			} else {
-				forward("/AdminPage", layout, req, resp);
 			}
+			forward("/AdminPage/Categories", layout, req, resp);
 		}
 
 		@PostMapping(path = { name + "/Products" })

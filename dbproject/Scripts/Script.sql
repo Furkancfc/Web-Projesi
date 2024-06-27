@@ -1,5 +1,6 @@
 USE webproject2;
-CREATE TABLE Account (
+
+CREATE TABLE IF NOT EXISTS Account(
 	username varchar(20),
 	email varchar(20) primary key not null ,
 	pass varchar(20) not null ,
@@ -9,43 +10,48 @@ CREATE TABLE Account (
 	orders blob not null,
 	auth varchar(32) not null
 );
-CREATE TABLE Cart (
+CREATE TABLE IF NOT EXISTS Cart (
 	cartId varchar(128) primary key not null ,
 	items blob ,
 	lastUpdate bigint ,
 	obj blob not null 
+
 );
 
-CREATE TABLE Category(
-	name varchar(20) not null unique,
-	categoryId varchar(128) primary key not null ,
-	itemCount INT,
-	items blob ,
-	obj blob not null 
-);
-CREATE TABLE Item(
-	itemId varchar(128) primary key not null ,
-	title varchar(20) not null ,
-	shortDesc varchar(32) not null ,
-	longDesc varchar(128) not null ,
-	imageURIs blob ,
-	createTime bigint ,
-	lastUpdate bigint ,
-	lastAccess bigint ,
-	obj blob not null ,
-	categoryName varchar(32),
-	price varchar(32)
+CREATE TABLE IF NOT EXISTS Category (
+    name VARCHAR(20) NOT NULL UNIQUE,
+    categoryId VARCHAR(128) PRIMARY KEY NOT NULL,
+    itemCount INT,
+    items BLOB,
+    obj BLOB NOT NULL
 );
 
-CREATE TABLE CartItem(
-	cartId varchar(128) not null,
-	itemId varchar(128) primary key not null ,
-	listingTime bigint ,
-	item blob not null ,
-	itemCount SMALLINT ,
-	obj blob not null
+-- Create table if it does not exist
+CREATE TABLE IF NOT EXISTS Item (
+    itemId VARCHAR(128) PRIMARY KEY NOT NULL,
+    title VARCHAR(32) NOT NULL,
+    shortDesc VARCHAR(32) NOT NULL,
+    longDesc VARCHAR(128) NOT NULL,
+    imageURIs BLOB,
+    createTime BIGINT,
+    lastUpdate BIGINT,
+    lastAccess BIGINT,
+    obj BLOB NOT NULL,
+    categoryName VARCHAR(32),
+    price VARCHAR(32)
 );
-create table Orders(
+
+-- Create table if it does not exist
+CREATE TABLE IF NOT EXISTS CartItem (
+    cartId VARCHAR(128) NOT NULL,
+    itemId VARCHAR(128) PRIMARY KEY NOT NULL,
+    listingTime BIGINT,
+    item BLOB NOT NULL,
+    itemCount SMALLINT,
+    obj BLOB NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Orders(
 	ordersId varchar(128) primary key not null,
 	ordersList blob not null,
 	obj blob not null
