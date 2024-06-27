@@ -17,10 +17,6 @@ public abstract class Dao<T> {
 		return this.template;
 	}
 
-	public abstract T display(T t);
-
-	public abstract T display(String tId);
-
 	public abstract T create(T t);
 
 	public abstract void delete(T t);

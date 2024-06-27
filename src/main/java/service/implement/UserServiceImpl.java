@@ -11,8 +11,14 @@ import model.Account;
 public class UserServiceImpl extends service.interfaces.UserService {
 	@Autowired
 	dao.implement.UserDaoImpl userDao;
+	@Autowired
+	dao.implement.CartDaoImpl cartDao;
+	@Autowired
+	dao.implement.OrdersDaoImpl ordersDao;
 
 	public Account createUser(Account account) {
+		cartDao.create(account.getCart());
+		ordersDao.create(account.getOrders());
 		return userDao.create(account);
 	}
 
@@ -26,9 +32,13 @@ public class UserServiceImpl extends service.interfaces.UserService {
 
 	public void deleteUser(String userId) {
 		userDao.delete(userId);
+		cartDao.delete(userId);
+		ordersDao.delete(userId);
 	}
 
 	public Account updateUser(Account account) {
+		cartDao.update(account.getCart());
+		ordersDao.update(account.getOrders());
 		return userDao.update(account);
 	}
 

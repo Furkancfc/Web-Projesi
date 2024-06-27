@@ -1,15 +1,15 @@
 package dao.interfaces;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
-import javax.sql.rowset.serial.SerialBlob;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
-
-import com.mysql.cj.jdbc.Blob;
-import com.mysql.cj.protocol.a.BlobValueEncoder;
+import org.springframework.lang.Nullable;
 
 import model.Category;
 import model.Item;
@@ -17,12 +17,54 @@ import model.interfaces.IGeneric;
 
 public abstract class CategoryDao extends Dao<Category> {
 
-	public abstract Category addCategory(model.Category category);
+	@Override
+	public void delete(Category t) {
+		delete(t.getCategoryId());
+	}
 
-	public abstract void deleteCategory(model.Category category);
+	@Override
+	public Category create(Category t) {
+		String sql = "insert into Category values ((?),(?),(?),(?),(?))";
+		return template.execute(sql, new PreparedStatementCallback<Category>() {
 
-	public abstract Category updateCategory(model.Category category);
+			@Override
+			public Category doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, t.getName());
+				ps.setString(2, t.getCategoryId());
+				ps.setInt(3, t.getItemCount());
+				ps.setBytes(4, IGeneric.getBytes(t.getItems()));
+				ps.setBytes(5, IGeneric.getBytes(t));
+				ps.execute();
+				return t;
+			}
+		});
+	}
 
+	@Override
+	public Category update(Category t) {
+		String sql = "update Category where name=(?)";
+		return template.execute(sql, new PreparedStatementCallback<Category>() {
+			@Override
+			@Nullable
+			public Category doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, t.getName());
+				ps.executeUpdate();
+				return t;
+			}
+		});
+	}
+
+	@Override
+	public void delete(String tId) {
+		String sql = "delete from Category where name=(?)";
+		template.execute(sql, new PreparedStatementCallback<Boolean>() {
+			@Override
+			public Boolean doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, tId);
+				return ps.execute();
+			}
+		});
+	}
 	public class CategoryMapper implements RowMapper<Category> {
 		public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
 			try {

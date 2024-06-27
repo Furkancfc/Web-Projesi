@@ -1,17 +1,14 @@
 package model;
 
 import java.time.*;
-import jakarta.persistence.*;
 import java.util.*;
 
 import model.interfaces.ICart;
-import webapp.MainDispatcher;
 
 public class Cart implements ICart {
 
 	private static final long serialVersionUID = 1L;
 	private String cartId;
-	private String userId;
 	public Map<String, CartItem> items;
 	public Instant lastUpdate;
 
@@ -34,8 +31,7 @@ public class Cart implements ICart {
 	public Cart(String userId) {
 		this.lastUpdate = Instant.now();
 		this.items = new TreeMap<String, CartItem>();
-		this.cartId = MainDispatcher.createRandomId();
-		this.userId = userId;
+		this.cartId = userId;
 	}
 
 	public Map<String, CartItem> getItems() {
@@ -49,7 +45,6 @@ public class Cart implements ICart {
 	public CartItem addItem(CartItem item) {
 		return this.items.put(item.getItemId(), item);
 	}
-
 	public CartItem getItem(String itemId) {
 		return this.items.get(itemId);
 	}
@@ -81,13 +76,4 @@ public class Cart implements ICart {
 	public String getCartId() {
 		return this.cartId;
 	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-
 }

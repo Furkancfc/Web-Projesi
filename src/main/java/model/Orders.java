@@ -10,7 +10,6 @@ import java.time.*;
 
 public class Orders implements IOrders {
 	private static final long serialVersionUID = 1L;
-	private String userId;
 	private String ordersId;
 	private Map<String, Order> orders;
 
@@ -43,17 +42,8 @@ public class Orders implements IOrders {
 	}
 
 	public Orders(String userId) {
-		this.ordersId = webapp.MainDispatcher.createRandomId();
+		this.ordersId = userId;
 		this.orders = new TreeMap<String, Order>();
-		this.userId = userId;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
 	}
 
 	public void setOrders(Map<String, Order> orders) {

@@ -27,4 +27,7 @@ public class ItemServiceImpl extends service.interfaces.ItemService {
 	public List<Item> getItems(){
 		return itemDao.getItems();
 	}
+	public Item getItem(String itemId){
+		return itemDao.getItem(itemId);
+	}
 }

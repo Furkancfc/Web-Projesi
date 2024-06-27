@@ -38,6 +38,6 @@ public class CategoryServiceImpl extends service.interfaces.CategoryService {
 	}
 
 	public Map<String, Item> getCategoryItems(Category c) {
-		return categoryDao.getCategory(c).getItems();
+		return categoryDao.getCategory(c.getName()).getItems();
 	}
 }
