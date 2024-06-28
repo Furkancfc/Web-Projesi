@@ -1,9 +1,12 @@
 package dao.interfaces;
 
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import jakarta.servlet.http.Part;
 
@@ -11,6 +14,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
 
+import io.micrometer.common.lang.NonNull;
 import model.Item;
 import model.interfaces.IGeneric;
 
@@ -78,23 +82,26 @@ public abstract class ItemDao extends Dao<model.Item> {
 
 	public class ItemMapper implements RowMapper<model.Item> {
 		@Override
-		public Item mapRow(ResultSet rs, int rowNum) throws SQLException {
+		public Item mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
 			Item i = (Item) IGeneric.getInstance(rs.getBytes("obj"));
 			if (i != null) {
 				return i;
-			}
-			if (i == null && rs != null) {
+			} else if (rs.getRow() > 0 || rs.next()) {
 				String itemId = rs.getString("itemId");
 				String title = rs.getString("title");
 				String shortDesc = rs.getString("shortDesc");
 				String longDesc = rs.getString("longDesc");
-				Collection<Part> images = (Collection<Part>) IGeneric.getInstance(rs.getBytes("images"));
+				List<Part> images = (List<Part>) IGeneric.getInstance(rs.getBytes("images"));
+				if (images == null) {
+					images = new ArrayList<Part>();
+				}
 				long createTime = rs.getLong("createTime");
 				long lastUpdate = rs.getLong("lastUpdate");
 				long lastAccess = rs.getLong("lastAccess");
 				String categoryName = rs.getString("categoryName");
 				String price = rs.getString("price");
 				i = new Item(title, shortDesc, longDesc, categoryName, images, price);
+				update(i);
 				return i;
 			} else {
 				return null;

@@ -5,9 +5,9 @@ CREATE TABLE IF NOT EXISTS Account(
 	email varchar(20) primary key not null ,
 	pass varchar(20) not null ,
 	userId varchar(128) not null unique ,
-	obj blob not null,
-	cart blob not null,
-	orders blob not null,
+	obj blob,
+	cart blob ,
+	orders blob,
 	auth varchar(32) not null
 );
 CREATE TABLE IF NOT EXISTS Cart (

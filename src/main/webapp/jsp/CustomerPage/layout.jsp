@@ -31,15 +31,25 @@
 			</div>
 			<nav>
 				<ul>
-					<li><a
-						href="<%=request.getContextPath()%>/CustomerPage">Home</a></li>
+					<li><a href="<%=request.getContextPath()%>/CustomerPage">Home</a></li>
 					<li><a
 						href="<%=request.getContextPath()%>/CustomerPage/Products">Products</a></li>
 					<li><a href="<%=request.getContextPath()%>/CustomerPage/About">About</a></li>
 					<li><a
 						href="<%=request.getContextPath()%>/CustomerPage/Contact">Contact</a></li>
-					<li><a href="<%=request.getContextPath()%>/CustomerPage/Cart"><i
+					<li><a href="<%=request.getContextPath()%>/CustomerPage/Cart">Cart<i
 							class="fas fa-shopping-cart"></i></a></li>
+					<%
+					if (session == null || session != null && session.getAttribute("userId") == null) {
+					%>
+					<li><a href="<%=request.getContextPath()%>/login">Login</a></li>
+					<%
+					} else {
+					%>
+					<li><a href="<%=request.getContextPath()%>/logout">Logout</a></li>
+					<%
+					}
+					%>
 				</ul>
 			</nav>
 			<nav>

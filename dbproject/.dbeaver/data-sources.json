@@ -18,8 +18,13 @@
 					"rewriteBatchedStatements": "true",
 					"enabledTLSProtocols": "TLSv1,TLSv1.1,TLSv1.2,TLSv1.3"
 				},
-				"auth-model": "native",
-				"handlers": {}
+				"auth-model": "native"
+			},
+			"custom-properties": {
+				"transaction.smart.commit": "true",
+				"valueManager.webproject2.Account:cart": "json",
+				"valueManager.webproject2.Account:obj": "json",
+				"valueManager.webproject2.Account:orders": "binary"
 			}
 		}
 	},

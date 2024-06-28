@@ -34,7 +34,10 @@ public class OrdersDaoImpl extends dao.interfaces.OrdersDao {
 			public Orders doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				ps.setString(1, ordersId);
 				ResultSet rs = ps.executeQuery();
+				if(rs.next()){
 				return new OrderMapper().mapRow(rs, rs.getRow());
+				}else
+				return null;
 			}
 		});
 	}

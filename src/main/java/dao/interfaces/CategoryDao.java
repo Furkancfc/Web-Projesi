@@ -4,13 +4,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
-
+import java.util.TreeMap;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.lang.Nullable;
 
+import io.micrometer.common.lang.NonNull;
 import model.Category;
 import model.Item;
 import model.interfaces.IGeneric;
@@ -65,25 +66,31 @@ public abstract class CategoryDao extends Dao<Category> {
 			}
 		});
 	}
+
 	public class CategoryMapper implements RowMapper<Category> {
-		public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
+		public Category mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
 			try {
-				if (rs != null) {
-					Category c = null;
-					if ((c = (Category) IGeneric.getInstance(rs.getBytes("obj"))) != null) {
-						return c;
-					} else {
-						c = new Category(null);
-						c.setName(rs.getString("name"));
-						c.setCategoryId(rs.getString("categoryId"));
-						c.setItemCount(rs.getInt("itemCount"));
-						c.setItemIds((Map<String, Item>) IGeneric.getInstance(rs.getBytes("items")));
-						return c;
+				Category c = (Category) IGeneric.getInstance(rs.getBytes("obj"));
+				if (c != null) {
+					return c;
+				} else if (rs.getRow() > 0 || rs.next()) {
+					c = new Category(null);
+					c.setName(rs.getString("name"));
+					c.setCategoryId(rs.getString("categoryId"));
+					c.setItemCount(rs.getInt("itemCount"));
+					Map<String, Item> items = (Map<String, Item>) IGeneric.getInstance(rs.getBytes("items"));
+					if (items == null) {
+						items = new TreeMap<String, Item>();
 					}
+					c.setItemIds(items);
+					update(c);
+					return c;
 				} else {
 					return null;
 				}
-			} catch (Exception e) {
+			} catch (
+
+			Exception e) {
 				return null;
 			}
 		}

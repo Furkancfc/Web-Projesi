@@ -12,4 +12,7 @@ public class Session {
 		this.session.setAttribute("userEmail", ac.getEmail());
 		this.session.setAttribute("auth", ac.getAuth());
 	}
+	public String getUserId(){
+		return (String)this.session.getAttribute("userId");
+	}
 }

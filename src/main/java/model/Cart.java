@@ -9,7 +9,7 @@ public class Cart implements ICart {
 
 	private static final long serialVersionUID = 1L;
 	private String cartId;
-	public Map<String, CartItem> items;
+	private Map<String, CartItem> items;
 	public Instant lastUpdate;
 
 	public void setCartId(String cartId) {

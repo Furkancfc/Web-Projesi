@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.*;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.*;
 
 import dao.interfaces.CartDao;
@@ -24,7 +25,10 @@ public class CartDaoImpl extends CartDao {
 				ps.setString(0, cId);
 				ps.setString(1, itemId);
 				ResultSet rs = ps.executeQuery();
-				return new CartItemMapper().mapRow(rs, rs.getRow());
+				if (rs.next()) {
+					return new CartItemMapper().mapRow(rs, rs.getRow());
+				} else
+					return null;
 			}
 		});
 	}
@@ -32,17 +36,30 @@ public class CartDaoImpl extends CartDao {
 	public CartItem getCartItem(Cart c, CartItem item) {
 		return getCartItem(c.getCartId(), item.getItemId());
 	}
-	public List<Cart> getCarts(){
+
+	public List<Cart> getCarts() {
 		String sql = "select * from Cart";
-		return template.query(sql,new CartMapper());
+		return template.query(sql, new CartMapper());
 	}
+
 	public Cart getCart(Cart c) {
 		return getCart(c.getCartId());
 	}
 
 	public Cart getCart(String cartId) {
-		String sql = String.format("select * from Cart where cartId=\"%s\"", cartId);
-		return template.queryForObject(sql,new CartMapper());
+		String sql = "select * from Cart where cartId=(?)";
+		return template.execute(sql, new PreparedStatementCallback<Cart>() {
+			@Override
+			@Nullable
+			public Cart doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+				ps.setString(1, cartId);
+				ResultSet rs = ps.executeQuery();
+				if (rs.next()) {
+					return new CartMapper().mapRow(rs, 0);
+				} else
+					return null;
+			}
+		});
 	}
 
 	public List<CartItem> getCartItems(Cart c) {

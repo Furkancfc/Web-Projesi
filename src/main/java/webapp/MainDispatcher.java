@@ -4,9 +4,12 @@ import model.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Map;
+
+import org.apache.catalina.util.URLEncoder;
 import org.springframework.web.context.*;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -21,7 +24,6 @@ import jakarta.servlet.http.Part;
 public class MainDispatcher extends DispatcherServlet {
 
 	private static final long serialVersionUID = -2020821112498604792L;
-	public static Map<String, Account> users;
 	private static WebApplicationContext context;
 
 	public MainDispatcher() {
@@ -30,19 +32,11 @@ public class MainDispatcher extends DispatcherServlet {
 		setApplicationContext(context);
 	}
 
-	public static boolean putUser(Account ac) {
-		return users.put(ac.getEmail(), ac) == null ? true : false;
-	}
-
-	public static Account getUser(String email) {
-		return users.get(email);
-	}
-
 	public static String createRandomId() {
 		SecureRandom scr = new SecureRandom();
 		byte[] bytes = new byte[64];
 		scr.nextBytes(bytes);
-		return Base64.getEncoder().encodeToString(bytes);
+		return java.net.URLEncoder.encode(Base64.getEncoder().encodeToString(bytes));
 	}
 
 	@Override
@@ -67,12 +61,23 @@ public class MainDispatcher extends DispatcherServlet {
 
 	// Utility method to save file to desired location
 	public static final String saveFile(Part part, String fileName) throws IOException {
-		
-		String savePath = System.getProperty("wtp.deploy")+context.getServletContext().getContextPath()+"/images";
+
+		String savePath = System.getProperty("wtp.deploy") + context.getServletContext().getContextPath() + "/images";
 		String filePath = savePath + File.separator + part.getSubmittedFileName() + "_" + fileName;
 		File fileSaveDir = new File(filePath);
-		String absolutePath = fileSaveDir.getAbsolutePath();	// server tarafta file kaydetmek icin kullanilir
-		String serverRelativePath= context.getServletContext().getContextPath() + "/images/" + fileSaveDir.getName() ;	// bu deger objec icinde kaydedilmek ve client tarafinda requestlerde kullanmak icin dondurulur
+		String absolutePath = fileSaveDir.getAbsolutePath(); // server tarafta file kaydetmek icin kullanilir
+		String serverRelativePath = context.getServletContext().getContextPath() + "/images/" + fileSaveDir.getName(); // bu
+																														// deger
+																														// objec
+																														// icinde
+																														// kaydedilmek
+																														// ve
+																														// client
+																														// tarafinda
+																														// requestlerde
+																														// kullanmak
+																														// icin
+																														// dondurulur
 		if (fileSaveDir != null && !fileSaveDir.exists()) {
 			fileSaveDir.mkdirs();
 		}

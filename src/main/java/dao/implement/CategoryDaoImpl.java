@@ -18,6 +18,7 @@ public class CategoryDaoImpl extends CategoryDao {
 		String sql = "select * from Category";
 		return template.query(sql, new CategoryMapper());
 	}
+
 	public Category getCategory(String cName) {
 		String sql = "select * from name=(?)";
 		return template.execute(sql, new PreparedStatementCallback<Category>() {
@@ -25,7 +26,10 @@ public class CategoryDaoImpl extends CategoryDao {
 			public Category doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				ps.setString(1, cName);
 				ResultSet rs = ps.executeQuery();
-				return new CategoryMapper().mapRow(rs, rs.getRow());
+				if (rs.next()) {
+					return new CategoryMapper().mapRow(rs, rs.getRow());
+				} else
+					return null;
 			}
 		});
 	}

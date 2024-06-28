@@ -4,9 +4,11 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.HandlerInterceptor;
 import io.micrometer.common.lang.NonNull;
@@ -16,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import model.Account;
+import model.CartItem;
 import model.Category;
 import model.Item;
 import webapp.*;
@@ -111,7 +114,8 @@ public class ViewController {
 	 */
 	public void redirect(String to, RequestWrapper req, HttpServletResponse resp) {
 		try {
-			to = req.getContextPath() + to;
+			if (!to.contains(req.getContextPath()))
+				to = req.getContextPath() + to;
 			resp.sendRedirect(to);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -125,7 +129,11 @@ public class ViewController {
 		static final String layout = "/jsp/AdminPage/layout.jsp";
 
 		@GetMapping(path = { name, name + "/**" })
-		public void doGet(RequestWrapper req, HttpServletResponse resp) {
+		public void doGet(RequestWrapper req, HttpServletResponse resp, HttpSession session) {
+			if (session != null && session.getAttribute("auth") != null
+					&& !session.getAttribute("auth").equals("admin")) {
+				redirect("/login", req, resp);
+			}
 			if (req.getRequestURI().equals(req.getContextPath() + name)) {
 				forward("/AdminPage/Dashboard", layout, req, resp);
 				return;
@@ -169,27 +177,50 @@ public class ViewController {
 			String password = req.getParameter("user-password");
 			String auth = req.getParameter("auth");
 			userService.createUser(new Account(email, password, username, auth));
-			redirect(name+"/Users", req, resp);
+			redirect(name + "/Users", req, resp);
 		}
 	}
 
 	@Controller
 	class IndexController {
+		public void addToCart(HttpSession session, RequestWrapper req, HttpServletResponse resp) {
+			String userId = (String) session.getAttribute("userId");
+			if (userId == null) {
+				redirect("/login", req, resp);
+				return;
+			}
+			Account c = userService.getUser(userId);
+			String itemId = req.getParameter("itemId");
+			Item i = itemService.getItem(itemId);
+			c.getCart().addItem(new CartItem(i, c.getUserId()));
+			redirect("/CustomerPage/Cart", req, resp);
+		}
+
 		@GetMapping(path = { "/", "/CustomerPage/**" })
-		public void getIndexPage(RequestWrapper req, HttpServletResponse resp) {
+		public void getIndexPage(RequestWrapper req, HttpServletResponse resp, HttpSession session) {
 			if (req.getRequestURI().equals(req.getContextPath())
 					|| req.getRequestURI().equals(req.getContextPath() + "/CustomerPage")) {
+				if (req.getRequestURL().toString().contains(req.getContextPath() + "/CustomerPage?addToCart")) {
+					addToCart(session, req, resp);
+					return;
+				}
 				forward("/CustomerPage/Index", "/jsp/CustomerPage/layout.jsp", req, resp);
 				return;
+			}
+			if (req.getRequestURL().toString().contains(req.getContextPath() + "/CustomerPage/Cart")) {
+				if (session.getAttribute("userId") != null)
+					req.setAttribute("cart", cartService.getCart((String) session.getAttribute("userId")));
+				else
+					redirect("/login", req, resp);
 			}
 			forward(req.getRequestURI(), "/jsp/CustomerPage/layout.jsp", req, resp);
 			return;
 		}
 
-		@RequestMapping(path = { "/logout", "/logout/" })
+		@RequestMapping(path = { "/logout/**"})
 		public void logout(HttpSession session, RequestWrapper req, HttpServletResponse resp) {
 			session.invalidate();
-			redirect("/index", req, resp);
+			redirect("/", req, resp);
 		}
 
 		@Controller
@@ -235,8 +266,8 @@ public class ViewController {
 				String password = req.getParameter("password");
 				String passagain = req.getParameter("confirm-password");
 				if (password.equals(passagain)) {
-					Account ac = new Account(email, password, username, null);
-					MainDispatcher.putUser(ac);
+					Account ac = new Account(email, password, username, "client");
+					userService.createUser(ac);
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
 					redirect("/CustomerPage", req, resp);

@@ -15,6 +15,7 @@ import org.springframework.lang.Nullable;
 
 import dao.implement.CartDaoImpl;
 import dao.implement.OrdersDaoImpl;
+import io.micrometer.common.lang.NonNull;
 import model.*;
 import model.interfaces.IGeneric;
 
@@ -41,7 +42,7 @@ public abstract class UserDao extends Dao<Account> {
 
 	@Override
 	public Account update(Account c) {
-		String sql = "update Account set username=(?), email=(?), pass=(?), userId=(?), cartId=(?), ordersId=(?), obj=(?),cart=(?),orders=(?),auth=(?) where userId=(?)";
+		String sql = "update Account set username=(?), email=(?), pass=(?),userId=(?), obj=(?),cart=(?),orders=(?),auth=(?) where userId=(?)";
 		return template.execute(sql, new PreparedStatementCallback<Account>() {
 			@Override
 			public Account doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
@@ -53,6 +54,7 @@ public abstract class UserDao extends Dao<Account> {
 				ps.setBytes(6, IGeneric.getBytes(c.getCart()));
 				ps.setBytes(7, IGeneric.getBytes(c.getOrders()));
 				ps.setString(8, c.getAuth());
+				ps.setString(9, c.getUserId());
 				ps.execute();
 				return c;
 			}
@@ -80,26 +82,33 @@ public abstract class UserDao extends Dao<Account> {
 
 	public class UserMapper implements RowMapper<Account> {
 		@Override
-		public Account mapRow(ResultSet rs, int rowNum) throws SQLException {
+		public Account mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
 			Account a = (Account) IGeneric.getInstance(rs.getBytes("obj"));
 			if (a != null)
 				return a;
-			if (a == null && rs != null) {
+			else if (rs.getRow() > 0 || rs.next()) {
 				String username = rs.getString("username");
 				String email = rs.getString("email");
 				String pass = rs.getString("pass");
 				String userId = rs.getString("userId");
 				Cart c = (Cart) IGeneric.getInstance(rs.getBytes("cart"));
 				Orders o = (Orders) IGeneric.getInstance(rs.getBytes("orders"));
+				if (c == null) {
+					c = new Cart(userId);
+				}
+				if (o == null) {
+					o = new Orders(userId);
+				}
 				String auth = rs.getString("auth");
 				a = new Account(email, pass, username, auth);
 				a.setUserId(userId);
 				a.setCart(c);
 				a.setOrders(o);
 				a.setAuth(auth);
+				update(a);
 				return a;
-			}
-			return null;
+			} else
+				return null;
 		}
 	}
 }

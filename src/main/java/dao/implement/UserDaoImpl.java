@@ -40,7 +40,7 @@ public class UserDaoImpl extends UserDao {
 				ps.setString(1, accountId);
 				ResultSet rs = ps.executeQuery();
 				if (rs.next()) {
-					new UserMapper().mapRow(rs, rs.getRow());
+					return new UserMapper().mapRow(rs, rs.getRow());
 				}
 				return null;
 			}
