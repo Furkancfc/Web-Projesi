@@ -60,7 +60,7 @@
 				</select>
 			</div>
 			<div class='row'>
-				<label for="price"> Price : </label> <input type="text" name="price" />
+				<label for="price"> Price : </label> <input type="number" step="0.01" name="price" />
 			</div>
 			<div class="row">
 				<label for="image">Image : </label> <input type="file" name="image"

@@ -1,29 +1,25 @@
 package model;
 
+import java.net.URLEncoder;
 import java.time.Instant;
 import jakarta.persistence.*;
+import model.interfaces.ICartItem;
 import webapp.MainDispatcher;
 
-public class CartItem {
+public class CartItem implements ICartItem {
 	private String cartId;
 	private String itemId;
 	private Instant listingTime;
-	private Item item;
 	private int itemCount;
 
-	public CartItem(Item item, String cartId) {
-		if (item != null) {
+	public CartItem(String itemId, String cartId) {
+		if (itemId != null) {
 			this.cartId = cartId;
 			this.itemCount = 1;
-			this.item = item;
-			this.itemId = item.getItemId();
+			this.itemId = itemId;
 		} else {
 			return;
 		}
-	}
-
-	public Item getItem() {
-		return item;
 	}
 
 	public String getItemId() {
@@ -50,10 +46,6 @@ public class CartItem {
 		this.itemCount = itemCount;
 	}
 
-	public void setItem(Item item) {
-		this.item = item;
-	}
-
 	public void setItemId(String itemId) {
 		this.itemId = itemId;
 	}
@@ -76,6 +68,10 @@ public class CartItem {
 
 	public void setCartId(String cartId) {
 		this.cartId = cartId;
+	}
+
+	public String getURL() {
+		return URLEncoder.encode(getCartItemId());
 	}
 
 }

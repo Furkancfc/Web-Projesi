@@ -1,6 +1,7 @@
 package model.interfaces;
 
 import java.io.*;
+import java.net.URLEncoder;
 
 public interface IGeneric<T> extends Serializable {
 
@@ -8,7 +9,6 @@ public interface IGeneric<T> extends Serializable {
 		try {
 			return org.apache.commons.lang3.SerializationUtils.deserialize(bytes);
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -17,7 +17,6 @@ public interface IGeneric<T> extends Serializable {
 		try {
 			return org.apache.commons.lang3.SerializationUtils.serialize((Serializable) obj);
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -26,7 +25,6 @@ public interface IGeneric<T> extends Serializable {
 		try {
 			return new String(org.apache.commons.lang3.SerializationUtils.serialize((Serializable) obj));
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 	}

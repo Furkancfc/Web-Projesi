@@ -21,10 +21,11 @@
 				"auth-model": "native"
 			},
 			"custom-properties": {
-				"transaction.smart.commit": "true",
 				"valueManager.webproject2.Account:cart": "json",
-				"valueManager.webproject2.Account:obj": "json",
-				"valueManager.webproject2.Account:orders": "binary"
+				"valueManager.webproject2.Account:obj": "binary",
+				"valueManager.webproject2.Account:orders": "binary",
+				"valueManager.webproject2.Item:imageURIs": "binary",
+				"valueManager.webproject2.Item:obj": "binary"
 			}
 		}
 	},

@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS Item (
     lastAccess BIGINT,
     obj BLOB NOT NULL,
     categoryName VARCHAR(32),
-    price VARCHAR(32)
+    price DOUBLE
 );
 
 -- Create table if it does not exist
@@ -46,7 +46,6 @@ CREATE TABLE IF NOT EXISTS CartItem (
     cartId VARCHAR(128) NOT NULL,
     itemId VARCHAR(128) PRIMARY KEY NOT NULL,
     listingTime BIGINT,
-    item BLOB NOT NULL,
     itemCount SMALLINT,
     obj BLOB NOT NULL
 );

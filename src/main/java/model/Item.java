@@ -1,9 +1,14 @@
 package model;
 
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.time.*;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
+
+import org.springframework.util.Base64Utils;
 
 import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.http.Part;
@@ -23,10 +28,10 @@ public class Item implements IItem {
 	private Instant lastUpdate; // write access
 	private Instant lastAccess; // read access
 	private String categoryName;
-	private String price;
+	private Double price;
 
 	public Item(@NonNull String title, @NonNull String shortDesc, @NonNull String longDesc,
-			@NonNull String categoryName, Collection<Part> images, @NonNull String price) {
+			@NonNull String categoryName, Collection<Part> images, @NonNull Double price) {
 		this.itemId = MainDispatcher.createRandomId();
 		this.title = title;
 		this.shortDesc = shortDesc;
@@ -52,10 +57,9 @@ public class Item implements IItem {
 				}
 			}
 		}
-		
+
 	}
 
-	// getters
 	public Instant getCreateTime() {
 		this.lastAccess = Instant.now();
 		return createTime;
@@ -99,11 +103,10 @@ public class Item implements IItem {
 		return imagespaths;
 	}
 
-	public String getPrice() {
+	public Double getPrice() {
 		return price;
 	}
 
-	// setters
 	public void setImageURI(List<String> images) {
 		this.lastUpdate = Instant.now();
 		this.imagespaths = images;
@@ -144,7 +147,7 @@ public class Item implements IItem {
 		this.categoryName = categoryName;
 	}
 
-	public void setPrice(String price) {
+	public void setPrice(Double price) {
 		this.price = price;
 	}
 
@@ -152,5 +155,9 @@ public class Item implements IItem {
 		if (imageURL != null) {
 			this.imagespaths.add(imageURL);
 		}
+	}
+
+	public String getURL() {
+		return URLEncoder.encode(getItemId());
 	}
 }

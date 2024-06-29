@@ -13,7 +13,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
 
-
 import dao.interfaces.CategoryDao.CategoryMapper;
 import io.micrometer.common.lang.NonNull;
 import model.*;
@@ -87,14 +86,13 @@ public abstract class CartDao extends Dao<Cart> {
 		@Override
 		public Cart mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
 			Cart c = (Cart) model.interfaces.IGeneric.getInstance(rs.getBytes("obj"));
-			if(c != null){
+			if (c != null) {
 				return c;
-			}
-			else if (rs.getRow() > 0 || rs.next()) {
-				String cartId = rs.getString("cartId");
+			} else if (rs.getRow() > 0 || rs.next()) {
+				String cartId = rs.getString("cartId");	
 				Map<String, CartItem> items = (Map<String, CartItem>) IGeneric.getInstance(rs.getBytes("items"));
-				if(items == null){
-					items = new TreeMap<String,CartItem>();
+				if (items == null) {
+					items = new TreeMap<String, CartItem>();
 				}
 				long lastUpdate = rs.getLong("lastUpdate");
 				c.setCartId(cartId);
@@ -120,9 +118,8 @@ public abstract class CartDao extends Dao<Cart> {
 					String cartId = rs.getString("cartId");
 					String itemId = rs.getString("itemId");
 					long listingTime = rs.getLong("listingTime");
-					Item item = (Item) IGeneric.getInstance(rs.getBytes("item"));
 					short itemCount = rs.getShort("itemCount");
-					ci = new CartItem(item, cartId);
+					ci = new CartItem(itemId, cartId);
 					ci.setCartItemId(itemId);
 					ci.setItemCount(itemCount);
 					ci.setListingTime(Instant.ofEpochMilli(listingTime));

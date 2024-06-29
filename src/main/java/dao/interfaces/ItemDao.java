@@ -4,6 +4,7 @@ import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -35,7 +36,7 @@ public abstract class ItemDao extends Dao<model.Item> {
 				ps.setLong(8, t.getLastAccess().toEpochMilli());
 				ps.setBytes(9, IGeneric.getBytes(t));
 				ps.setString(10, t.getCategoryName());
-				ps.setString(11, t.getPrice());
+				ps.setDouble(11, t.getPrice());
 				ps.execute();
 				return t;
 			}
@@ -61,7 +62,7 @@ public abstract class ItemDao extends Dao<model.Item> {
 
 	@Override
 	public Item update(Item t) {
-		String sql = "UPDATE Item SET title=(?), shortDesc=(?), longDesc=(?), imageURIs=(?), createTime=(?), lastUpdate=(?), lastAccess=(?), obj=(?), categoryName=(?) WHERE itemId=(?)";
+		String sql = "UPDATE Item SET title=(?), shortDesc=(?), longDesc=(?), imageURIs=(?), createTime=(?), lastUpdate=(?), lastAccess=(?), obj=(?), categoryName=(?),price=(?) WHERE itemId=(?)";
 		return template.execute(sql, new PreparedStatementCallback<Item>() {
 			@Override
 			public Item doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
@@ -74,7 +75,8 @@ public abstract class ItemDao extends Dao<model.Item> {
 				ps.setLong(7, t.getLastAccess().toEpochMilli());
 				ps.setBytes(8, IGeneric.getBytes(t));
 				ps.setString(9, t.getCategoryName());
-				ps.setString(10, t.getItemId());
+				ps.setDouble(10, t.getPrice());
+				ps.setString(11, t.getItemId());
 				return t;
 			}
 		});
@@ -83,7 +85,12 @@ public abstract class ItemDao extends Dao<model.Item> {
 	public class ItemMapper implements RowMapper<model.Item> {
 		@Override
 		public Item mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
-			Item i = (Item) IGeneric.getInstance(rs.getBytes("obj"));
+			Item i;
+			try {
+				i = (Item) IGeneric.getInstance(rs.getBytes("obj"));
+			} catch (Exception e) {
+				i = null;
+			}
 			if (i != null) {
 				return i;
 			} else if (rs.getRow() > 0 || rs.next()) {
@@ -91,7 +98,12 @@ public abstract class ItemDao extends Dao<model.Item> {
 				String title = rs.getString("title");
 				String shortDesc = rs.getString("shortDesc");
 				String longDesc = rs.getString("longDesc");
-				List<Part> images = (List<Part>) IGeneric.getInstance(rs.getBytes("images"));
+				List<Part> images;
+				try {
+					images = (List<Part>) IGeneric.getInstance(rs.getBytes("images"));
+				} catch (Exception e) {
+					images = null;
+				}
 				if (images == null) {
 					images = new ArrayList<Part>();
 				}
@@ -99,8 +111,12 @@ public abstract class ItemDao extends Dao<model.Item> {
 				long lastUpdate = rs.getLong("lastUpdate");
 				long lastAccess = rs.getLong("lastAccess");
 				String categoryName = rs.getString("categoryName");
-				String price = rs.getString("price");
+				Double price = rs.getDouble("price");
 				i = new Item(title, shortDesc, longDesc, categoryName, images, price);
+				i.setItemId(itemId);
+				i.setCreateTime(Instant.ofEpochMilli(createTime));
+				i.setLastUpdate(Instant.ofEpochMilli(lastUpdate));
+				i.setLastAccess(Instant.ofEpochMilli(lastAccess));
 				update(i);
 				return i;
 			} else {

@@ -36,7 +36,7 @@ public class MainDispatcher extends DispatcherServlet {
 		SecureRandom scr = new SecureRandom();
 		byte[] bytes = new byte[64];
 		scr.nextBytes(bytes);
-		return java.net.URLEncoder.encode(Base64.getEncoder().encodeToString(bytes));
+		return Base64.getEncoder().encodeToString(bytes);
 	}
 
 	@Override

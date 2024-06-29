@@ -33,7 +33,7 @@ public class ItemDaoImpl extends ItemDao {
 			public Item doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				ps.setString(1, itemId);
 				ResultSet rs = ps.executeQuery();
-				if (rs.next()) {
+				if (rs.getRow() > 0 || rs.next()) {
 					return new ItemMapper().mapRow(rs, rs.getRow());
 				}
 				return null;

@@ -6,22 +6,23 @@ import java.util.*;
 import io.micrometer.common.lang.NonNull;
 import model.interfaces.IOrders;
 
+import java.net.URLEncoder;
 import java.time.*;
 
 public class Orders implements IOrders {
 	private static final long serialVersionUID = 1L;
 	private String ordersId;
 	private Map<String, Order> orders;
-
 	public class Order {
 		private String orderId;
-		private String price;
 		private Instant purchaseTime;
 		private CartItem cartItem;
-		public Order(CartItem ci) {
+		private String price;
+
+		public Order(CartItem ci, String price) {
 			this.orderId = ci.getCartItemId();
-			this.price = ci.getItem().getPrice();
 			this.purchaseTime = Instant.now();
+			this.price = price;
 		}
 
 		public CartItem getCartItem() {
@@ -66,8 +67,8 @@ public class Orders implements IOrders {
 		return orders.get(cartItemId);
 	}
 
-	public void addOrder(CartItem ci) {
-		orders.put(ci.getCartItemId(), new Order(ci));
+	public void addOrder(CartItem ci,String price) {
+		orders.put(ci.getCartItemId(), new Order(ci, price));
 	}
 
 	public Order removeOrder(String cartItemId) {
@@ -76,6 +77,10 @@ public class Orders implements IOrders {
 
 	public void setOrder(@NonNull Order o) {
 		orders.put(o.getCartItem().getCartItemId(), o);
+	}
+
+	public String getURL() {
+		return URLEncoder.encode(getOrdersId());
 	}
 
 }

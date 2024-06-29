@@ -1,6 +1,8 @@
 package model;
 
 import webapp.MainDispatcher;
+
+import java.net.URLEncoder;
 import java.time.*;
 import java.util.Base64;
 import model.interfaces.IAccount;
@@ -106,5 +108,8 @@ public class Account implements IAccount {
 
 	public Orders getOrders() {
 		return orders;
+	}
+	public String getURL(){
+		return URLEncoder.encode(getUserId());
 	}
 }

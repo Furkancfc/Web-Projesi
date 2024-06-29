@@ -1,5 +1,6 @@
 package model;
 
+import java.net.URLEncoder;
 import java.time.*;
 import java.util.*;
 
@@ -34,8 +35,12 @@ public class Cart implements ICart {
 		this.cartId = userId;
 	}
 
-	public Map<String, CartItem> getItems() {
-		return items;
+	public Collection<CartItem> getItems() {
+		return items.values();
+	}
+
+	public Set<String> getItemIds() {
+		return items.keySet();
 	}
 
 	public CartItem deleteItem(String itemId) {
@@ -43,8 +48,14 @@ public class Cart implements ICart {
 	}
 
 	public CartItem addItem(CartItem item) {
+		CartItem c;
+		if ((c = this.items.get(item.getItemId())) != null) {
+			c.increment();
+			return c;
+		}
 		return this.items.put(item.getItemId(), item);
 	}
+
 	public CartItem getItem(String itemId) {
 		return this.items.get(itemId);
 	}
@@ -75,5 +86,9 @@ public class Cart implements ICart {
 
 	public String getCartId() {
 		return this.cartId;
+	}
+
+	public String getURL() {
+		return URLEncoder.encode(getCartId());
 	}
 }

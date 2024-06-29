@@ -37,7 +37,6 @@ public class ViewController {
 	private service.implement.ItemServiceImpl itemService;
 	@Autowired
 	private service.implement.OrdersServiceImpl ordersService;
-
 	private RequestWrapper rw;
 	public String pageName;
 	public String app;
@@ -157,7 +156,7 @@ public class ViewController {
 			String shortDesc = req.getParameter("short-desc");
 			String longDesc = req.getParameter("long-desc");
 			String categoryName = req.getParameter("category");
-			String price = req.getParameter("price");
+			Double price = Double.valueOf(req.getParameter("price"));
 			Collection<Part> parts;
 			try {
 				parts = req.getParts();
@@ -192,8 +191,13 @@ public class ViewController {
 			Account c = userService.getUser(userId);
 			String itemId = req.getParameter("itemId");
 			Item i = itemService.getItem(itemId);
-			c.getCart().addItem(new CartItem(i, c.getUserId()));
-			redirect("/CustomerPage/Cart", req, resp);
+			if (i != null) {
+				CartItem ci = new CartItem(i.getItemId(), c.getUserId());
+				cartService.addCartItem(ci.getCartId(), ci);
+			} else {
+				redirect("/CustomerPage/", req, resp);
+			}
+			redirect("/CustomerPage/", req, resp);
 		}
 
 		@GetMapping(path = { "/", "/CustomerPage/**" })
@@ -210,14 +214,16 @@ public class ViewController {
 			if (req.getRequestURL().toString().contains(req.getContextPath() + "/CustomerPage/Cart")) {
 				if (session.getAttribute("userId") != null)
 					req.setAttribute("cart", cartService.getCart((String) session.getAttribute("userId")));
-				else
+				else {
 					redirect("/login", req, resp);
+					return;
+				}
 			}
 			forward(req.getRequestURI(), "/jsp/CustomerPage/layout.jsp", req, resp);
 			return;
 		}
 
-		@RequestMapping(path = { "/logout/**"})
+		@RequestMapping(path = { "/logout/**" })
 		public void logout(HttpSession session, RequestWrapper req, HttpServletResponse resp) {
 			session.invalidate();
 			redirect("/", req, resp);
@@ -242,8 +248,10 @@ public class ViewController {
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
 					redirect("/CustomerPage", req, resp);
+					return;
 				} else {
 					forward("/login", "/jsp/template/layout.jsp", req, resp);
+					return;
 				}
 			}
 		}

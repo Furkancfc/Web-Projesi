@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import model.CartItem;
+import service.interfaces.ItemService;
 
 @Service
 public class CartServiceImpl extends service.interfaces.CartService {
@@ -17,9 +18,20 @@ public class CartServiceImpl extends service.interfaces.CartService {
 	private dao.implement.CartDaoImpl cartDao;
 	@Autowired
 	private dao.implement.ItemDaoImpl itemDao;
+	@Autowired
+	dao.implement.UserDaoImpl userDao;
 
 	public Cart getCart(String cartId) {
-		return cartDao.getCart(cartId);
+		if (userDao.getAccount(cartId) != null) {
+			Cart c = cartDao.getCart(cartId);
+			if (c != null) {
+				return c;
+			} else {
+				return cartDao.create(new Cart(cartId));
+			}
+		} else {
+			return null;
+		}
 	}
 
 	public List<Cart> getCarts() {
@@ -53,8 +65,35 @@ public class CartServiceImpl extends service.interfaces.CartService {
 	public void addCartItem(String cartId, String itemId) {
 		Cart c = cartDao.getCart(cartId);
 		Item i = itemDao.getItem(itemId);
-		CartItem ci = new CartItem(i, cartId);
+		CartItem ci = new CartItem(i.getItemId(), cartId);
 		c.addItem(ci);
 		cartDao.update(c);
+	}
+
+	public void addCartItem(String cartId, CartItem cartItem, int count) {
+		Cart c = cartDao.getCart(cartId);
+		c.setCount(cartId, count);
+		c.addItem(cartItem);
+		cartDao.update(c);
+	}
+
+	public void addCartItem(String cartId, String itemId, int count) {
+		Cart c = cartDao.getCart(cartId);
+		Item i = itemDao.getItem(itemId);
+		CartItem ci = new CartItem(i.getItemId(), cartId);
+		ci.setItemCount(count);
+		c.addItem(ci);
+		cartDao.update(c);
+	}
+
+	public Double calculateCartPrice(String cartId) {
+		Cart c = cartDao.getCart(cartId);
+		double totalPrice = 0d;
+		for (CartItem x : c.getItems()) {
+			Item i = itemDao.getItem(x.getItemId());
+			if (i != null)
+				totalPrice += i.getPrice() * x.getItemCount();
+		}
+		return totalPrice;
 	}
 }

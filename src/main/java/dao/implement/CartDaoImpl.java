@@ -54,10 +54,11 @@ public class CartDaoImpl extends CartDao {
 			public Cart doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				ps.setString(1, cartId);
 				ResultSet rs = ps.executeQuery();
-				if (rs.next()) {
+				if (rs.getRow() > 0 || rs.next()) {
 					return new CartMapper().mapRow(rs, 0);
-				} else
+				} else {
 					return null;
+				}
 			}
 		});
 	}

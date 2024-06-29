@@ -10,20 +10,31 @@ if (session == null || session.getAttribute("userId") == null)
 	<h2>Your Cart</h2>
 	<div id="cart-items">
 		<c:choose>
-			<c:when test="${not empty cart.items}">
-				<c:forEach var="item" items="${cart.getItems()}">
+			<c:when test="${not empty cart.getItems()}">
+				<c:forEach var="cartItem" items="${cart.getItems()}">
+					<c:set var="item"
+						value="${itemService.getItem(cartItem.getItemId())}" />
 					<div class="cart-item">
-						<p>${item.getItem().getTitle()}</p>
-						<p>Quantity: ${item.getItemCount()}</p>
-						<p>Price: ${item.getPrice() }</p>
+						<p>${item.getTitle()}</p>
+						<p>Quantity: ${cartItem.getItemCount()}</p>
+						<p>Price: ${item.getPrice()}</p>
+						<a class='btn btn-primary'
+							href="<%=request.getContextPath() %>/CustomerPage/Checkout?cartId=${cart.getURL()}&cartItem=${cartItem.getURL()}">Buy</a>
 					</div>
+					<hr />
 				</c:forEach>
+				<p id="total-price"></p>
+				<div id="chechkout-div">
+					<p>Total Price :
+						${cartService.calculateCartPrice(cart.getCartId())}</p>
+					<button class='btn btn-primary' id='accept-checkout'
+						href="<%= request.getContextPath() %>/CustomerPageCheckout?cartId=${cart.getURL()}">Accept</button>
+					<button class='btn btn-danger' id="cancel-checkout">Cancel</button>
+				</div>
 			</c:when>
 			<c:otherwise>
 				<p>Your cart is empty.</p>
 			</c:otherwise>
 		</c:choose>
 	</div>
-	<p id="total-price">Total: $0.00</p>
-	<button id="checkout">Proceed to Checkout</button>
 </section>

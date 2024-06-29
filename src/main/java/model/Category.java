@@ -2,6 +2,8 @@ package model;
 
 import webapp.MainDispatcher;
 import jakarta.persistence.*;
+
+import java.net.URLEncoder;
 import java.util.*;
 
 import model.interfaces.*;
@@ -70,4 +72,7 @@ public class Category implements ICategory {
 		}
 	}
 
+	public String getURL() {
+		return URLEncoder.encode(getCategoryId());
+	}
 }
