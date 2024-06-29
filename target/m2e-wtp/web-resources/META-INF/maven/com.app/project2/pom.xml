@@ -7,16 +7,6 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/javax.servlet/jstl -->
-		<!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
-		<!--l
-		https://mvnrepository.com/artifact/jakarta.servlet.jsp.jstl/jakarta.servlet.jsp.jstl-api -->
-		<!--
-		https://mvnrepository.com/artifact/org.apache.taglibs/taglibs-standard-impl -->
-		<!-- https://mvnrepository.com/artifact/jakarta-taglibs/standard -->
-		<!--
-		https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api -->
-		
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>

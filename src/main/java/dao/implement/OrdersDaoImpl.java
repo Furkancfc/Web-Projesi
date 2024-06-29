@@ -11,32 +11,29 @@ import org.springframework.lang.Nullable;
 
 import com.mysql.cj.x.protobuf.MysqlxCrud.Order;
 
+import model.CartItem;
 import model.Orders;
 import model.interfaces.IGeneric;
 
 public class OrdersDaoImpl extends dao.interfaces.OrdersDao {
-	@Override
-	public Orders display(Orders t) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Orders display(String tId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	public Orders deleteOrder(String ordersId, String orderId) {
 		Orders o = getOrders(orderId);
 		o.removeOrder(orderId);
-		return o;
+		return update(o);
 	}
 
-	public Orders addOrder(String ordersId, model.Orders.Order order) {
+	public Orders addOrder(Orders o, model.Order order) {
+		if (o == null)
+			return null;
+		o.addOrder(order);
+		return update(o);
+	}
+
+	public Orders addOrder(String ordersId, CartItem ci, Double price, String payment_Method) {
 		Orders o = getOrders(ordersId);
-		o.setOrder(order);
-		return updateOrders(o);
+		o.addOrder(ci, price, payment_Method);
+		return update(o);
 	}
 
 	public Orders getOrders(String ordersId) {
@@ -45,28 +42,16 @@ public class OrdersDaoImpl extends dao.interfaces.OrdersDao {
 			public Orders doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				ps.setString(1, ordersId);
 				ResultSet rs = ps.executeQuery();
-				return new OrderMapper().mapRow(rs, rs.getRow());
+				if (rs.getRow() > 0 || rs.next()) {
+					return new OrdersMapper().mapRow(rs, rs.getRow());
+				} else
+					return null;
 			}
 		});
 	}
 
 	public Orders createOrders(Orders t) {
-		String sql = "insert into Orders values ((?),(?),(?),(?))";
-		return template.execute(sql, new PreparedStatementCallback<Orders>() {
-			@Override
-			public Orders doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
-				try {
-					ps.setString(1, t.getOrdersId());
-					ps.setString(2, t.getUserId());
-					ps.setBytes(3, IGeneric.getBytes(t.getOrders()));
-					ps.setBytes(4, IGeneric.getBytes(t));
-					ps.execute();
-					return t;
-				} catch (Exception e) {
-					return null;
-				}
-			}
-		});
+		return create(t);
 	}
 
 	public void deleteOrders(Orders t) {
@@ -74,55 +59,10 @@ public class OrdersDaoImpl extends dao.interfaces.OrdersDao {
 	}
 
 	public void deleteOrders(String ordersId) {
-		String sql = "delete from Orders where ordersId=(?)";
-		template.execute(sql, new PreparedStatementCallback<Void>() {
-			@Override
-			@Nullable
-			public Void doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
-				ps.setString(1, ordersId);
-				ps.execute();
-				return null;
-			}
-		});
-
+		delete(ordersId);
 	}
 
 	public model.Orders updateOrders(Orders t) {
-		String sql = "update Orders set ordersId=(?), userId=(?), ordersList=(?), obj=(?) where ordersId=(?)";
-		return template.execute(sql, new PreparedStatementCallback<Orders>() {
-			@Override
-			public Orders doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
-				ps.setString(1, t.getOrdersId());
-				ps.setString(2, t.getUserId());
-				ps.setBytes(3, IGeneric.getBytes(t.getOrders()));
-				ps.setBytes(4, IGeneric.getBytes(t));
-				return t;
-			}
-		});
+		return update(t);
 	}
-
-	@Override
-	public Orders create(Orders t) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void delete(Orders t) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void delete(String tId) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Orders update(Orders t) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

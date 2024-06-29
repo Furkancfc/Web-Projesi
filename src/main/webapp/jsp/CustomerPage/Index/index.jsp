@@ -1,46 +1,25 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql"%>
 
-<section class="hero">
-	<h2>Welcome to Jabers and Furkans Store</h2>
-	<p>Find the best products at unbeatable prices. We have more ways
-		to take the price from you 😉</p>
-</section>
-<section id="best-sellers">
-	<h2>Best Sellers</h2>
-	<div class="product-grid">
-		<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-		<c:forEach items="${itemService.getItems()}" var="item">
-			<c:choose>
-				<c:when
-					test="${request.getParameter('Category') != null && item.getCategoryName() == request.getParameter('Category')}">
-					<div class="product-item">
-						<img src="${item.getImageURLs().get(0)}" alt="${item.getTitle()}">
-						<h3>${item.getTitle()}</h3>
-						<p>${item.getPrice()}</p>
-						<button class="add-to-cart">Add to Cart</button>
-					</div>
-				</c:when>
-				<c:otherwise>
-					<div class="product-item">
-						<img src="${item.getImageURLs().get(0)}" alt="${item.getTitle()}">
-						<h3>${item.getTitle()}</h3>
-						<p>${item.getPrice()}</p>
-						<button class="add-to-cart">Add to Cart</button>
-					</div>
-				</c:otherwise>
-			</c:choose>
-		</c:forEach>
-	</div>
-</section>
+<h2>Welcome to Jabers and Furkans Store</h2>
+<p>Find the best products at unbeatable prices. We have more ways to
+	take the price from you 😉</p>
 <section id="new-arrivals">
 	<h2>New Arrivals</h2>
 	<!--  Gonna make conditional listing. ie. for a product, if listing time is smaller than 15 days, it will be listed -->
 	<div class="product-grid">
 		<c:forEach var='item' items='${itemService.getItems()}'>
 			<div class="product-item">
-				<img src="${item.getImageURLs().get(0)}" alt="${item.getTitle()}">
+				<c:choose>
+					<c:when test="${not empty item.getImageURLs() }">
+						<img src="${item.getImageURLs().get(0)}" alt="${item.getTitle()}">
+					</c:when>
+				</c:choose>
 				<h3>${item.getTitle() }</h3>
 				<p>${item.getPrice()}</p>
-				<button class="add-to-cart">Add to Cart</button>
+				<a class='btn add-to-cart' type="button"
+					href="${pageContext.request.contextPath}/CustomerPage?addToCart=&itemId=${item.getURL()}">Add
+					to Cart</a>
 			</div>
 		</c:forEach>
 	</div>

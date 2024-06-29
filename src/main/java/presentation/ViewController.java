@@ -1,45 +1,28 @@
 package presentation;
 
-import java.awt.PageAttributes.MediaType;
-import java.awt.datatransfer.MimeTypeParseException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.RequestEntity.HeadersBuilder;
-import org.springframework.http.client.support.HttpRequestWrapper;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.util.MimeType;
-import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.i18n.AcceptHeaderLocaleContextResolver;
-import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.function.ServerRequest.Headers;
-
 import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import model.Account;
+import model.Cart;
+import model.CartItem;
 import model.Category;
 import model.Item;
+import model.Orders;
 import webapp.*;
 
 @MultipartConfig
@@ -56,7 +39,6 @@ public class ViewController {
 	private service.implement.ItemServiceImpl itemService;
 	@Autowired
 	private service.implement.OrdersServiceImpl ordersService;
-
 	private RequestWrapper rw;
 	public String pageName;
 	public String app;
@@ -133,7 +115,8 @@ public class ViewController {
 	 */
 	public void redirect(String to, RequestWrapper req, HttpServletResponse resp) {
 		try {
-			to = req.getContextPath() + to;
+			if (!to.contains(req.getContextPath()))
+				to = req.getContextPath() + to;
 			resp.sendRedirect(to);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -147,7 +130,11 @@ public class ViewController {
 		static final String layout = "/jsp/AdminPage/layout.jsp";
 
 		@GetMapping(path = { name, name + "/**" })
-		public void doGet(RequestWrapper req, HttpServletResponse resp) {
+		public void doGet(RequestWrapper req, HttpServletResponse resp, HttpSession session) {
+			if (session != null && session.getAttribute("auth") != null
+					&& !session.getAttribute("auth").equals("admin")) {
+				redirect("/login", req, resp);
+			}
 			if (req.getRequestURI().equals(req.getContextPath() + name)) {
 				forward("/AdminPage/Dashboard", layout, req, resp);
 				return;
@@ -171,7 +158,7 @@ public class ViewController {
 			String shortDesc = req.getParameter("short-desc");
 			String longDesc = req.getParameter("long-desc");
 			String categoryName = req.getParameter("category");
-			String price = req.getParameter("price");
+			Double price = Double.valueOf(req.getParameter("price"));
 			Collection<Part> parts;
 			try {
 				parts = req.getParts();
@@ -191,26 +178,112 @@ public class ViewController {
 			String password = req.getParameter("user-password");
 			String auth = req.getParameter("auth");
 			userService.createUser(new Account(email, password, username, auth));
+			redirect(name + "/Users", req, resp);
 		}
 	}
 
 	@Controller
 	class IndexController {
+		@PostMapping(path = "/CustomerPage/Checkout")
+		public void takeOrder(HttpSession session, RequestWrapper req, HttpServletResponse resp) {
+			String payment_method = (String) req.getParameter("payment-method");
+			String cartId = (String) req.getParameter("cartId");
+			String cartItemId = (String) req.getParameter("cartItemId");
+			Cart c = cartService.getCart(cartId);
+			String userId = (String) session.getAttribute("userId");
+			if (userId != null) {
+				if (cartItemId == null) { // add orders to every item
+
+					c.getItems().forEach(x -> {
+						Item i = itemService.getItem(x.getItemId());
+						model.Order o = new model.Order(x, i.getPrice(), payment_method);
+						ordersService.addOrder(userId, o);
+						redirect("/CustomerPage/Orders", req, resp);
+					});
+				} else { // add orders to cartItem
+					CartItem ci = c.getItem(cartItemId);
+					Item i = itemService.getItem(cartItemId);
+					model.Order o = new model.Order(ci, i.getPrice(), payment_method);
+					ordersService.addOrder(userId, o);
+					redirect("/CustomerPage/Orders", req, resp);
+				}
+			} else {
+				redirect("/login", req, resp);
+			}
+		}
+
+		public void addToCart(HttpSession session, RequestWrapper req, HttpServletResponse resp) {
+			String userId = (String) session.getAttribute("userId");
+			if (userId == null) {
+				redirect("/login", req, resp);
+				return;
+			}
+			Account c = userService.getUser(userId);
+			String itemId = req.getParameter("itemId");
+			Item i = itemService.getItem(itemId);
+			if (i != null) {
+				CartItem ci = new CartItem(i.getItemId(), c.getUserId());
+				cartService.addCartItem(ci.getCartId(), ci);
+			} else {
+				redirect("/CustomerPage/", req, resp);
+			}
+			redirect("/CustomerPage/Cart", req, resp);
+		}
+
 		@GetMapping(path = { "/", "/CustomerPage/**" })
-		public void getIndexPage(RequestWrapper req, HttpServletResponse resp) {
+		public void getIndexPage(RequestWrapper req, HttpServletResponse resp, HttpSession session) {
 			if (req.getRequestURI().equals(req.getContextPath())
 					|| req.getRequestURI().equals(req.getContextPath() + "/CustomerPage")) {
+				if (req.getRequestURL().toString().contains(req.getContextPath() + "/CustomerPage?addToCart")) {
+					addToCart(session, req, resp);
+					return;
+				}
 				forward("/CustomerPage/Index", "/jsp/CustomerPage/layout.jsp", req, resp);
 				return;
+			}
+			if (req.getRequestURL().toString().contains(req.getContextPath() + "/CustomerPage/Cart")) {
+				if (session.getAttribute("userId") != null) {
+					req.setAttribute("cart", cartService.getCart((String) session.getAttribute("userId")));
+					forward("/CustomerPage/Cart", "/jsp/CustomerPage/layout.jsp", req, resp);
+					return;
+				} else {
+					redirect("/login", req, resp);
+					return;
+				}
+			}
+			if (req.getRequestURL().toString().contains(req.getContextPath() + "/CustomerPage/Checkout")) {
+				if (session.getAttribute("userId") != null) {
+					req.setAttribute("cart", cartService.getCart((String) session.getAttribute("userId")));
+					if (req.getParameter("cartId") != null) {
+						forward("/CustomerPage/Checkout", "/jsp/CustomerPage/layout.jsp", req, resp);
+						return;
+					} else {
+						redirect("/CustomerPage/Cart", req, resp);
+						return;
+					}
+				} else {
+					redirect("/login", req, resp);
+					return;
+				}
+			}
+			if (req.getRequestURL().toString().contains(req.getContextPath() + "/CustomerPage/Orders")) {
+				if (session.getAttribute("userId") != null) {
+					req.setAttribute("orders", ordersService.getOrders((String) session.getAttribute("userId")));
+					forward("/CustomerPage/Orders", "/jsp/CustomerPage/layout.jsp", req, resp);
+					return;
+				} else {
+					redirect("/login", req, resp);
+					return;
+				}
 			}
 			forward(req.getRequestURI(), "/jsp/CustomerPage/layout.jsp", req, resp);
 			return;
 		}
 
-		@RequestMapping(path = { "/logout", "/logout/" })
+		@RequestMapping(path = { "/logout/**" })
 		public void logout(HttpSession session, RequestWrapper req, HttpServletResponse resp) {
 			session.invalidate();
-			redirect("/index", req, resp);
+			redirect("/", req, resp);
 		}
 
 		@Controller
@@ -220,20 +293,22 @@ public class ViewController {
 				if (!checkSession(req, resp))
 					forward("/login", "/jsp/template/layout.jsp", req, resp);
 				else
-					redirect("/index", req, resp);
+					redirect("/CustomerPage", req, resp);
 			}
 
 			@PostMapping("/login")
 			public void postLogin(RequestWrapper req, HttpServletResponse resp) {
 				String email = req.getParameter("email");
 				String password = req.getParameter("password");
-				Account ac = MainDispatcher.getUser(email);
+				Account ac = userService.getUserForEmail(email);
 				if (ac != null && ac.getPassword().equals(password)) {
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
-					redirect("/index", req, resp);
+					redirect("/CustomerPage", req, resp);
+					return;
 				} else {
 					forward("/login", "/jsp/template/layout.jsp", req, resp);
+					return;
 				}
 			}
 		}
@@ -245,7 +320,7 @@ public class ViewController {
 				if (!checkSession(req, resp)) {
 					forward("/signup", "/jsp/template/layout.jsp", req, resp);
 				} else {
-					redirect("/index", req, resp);
+					redirect("/CustomerPage", req, resp);
 				}
 			}
 
@@ -256,11 +331,11 @@ public class ViewController {
 				String password = req.getParameter("password");
 				String passagain = req.getParameter("confirm-password");
 				if (password.equals(passagain)) {
-					Account ac = new Account(email, password, username, null);
-					MainDispatcher.putUser(ac);
+					Account ac = new Account(email, password, username, "client");
+					userService.createUser(ac);
 					req.getSession().setMaxInactiveInterval(60 * 60 * 24 * 7);
 					new Session(req.getSession(), ac);
-					redirect("/index", req, resp);
+					redirect("/CustomerPage", req, resp);
 				} else {
 					forward("/signup", "/jsp/template/layout.jsp", req, resp);
 				}

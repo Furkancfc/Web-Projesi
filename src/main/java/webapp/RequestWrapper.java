@@ -52,7 +52,7 @@ public class RequestWrapper extends HttpServletRequestWrapper implements HttpSer
 		}
 
 		// Normalize query
-		String query = uri.getQuery();
+		String query = req.getQueryString();
 		if (query != null) {
 			query = Arrays.stream(query.split("&")).sorted().collect(Collectors.joining("&"));
 		}
@@ -64,8 +64,19 @@ public class RequestWrapper extends HttpServletRequestWrapper implements HttpSer
 		}
 
 		// Reconstruct the normalized URL
-		URI normalizedUri = new URI(scheme, null, host, req.getServerPort(), path, query, fragment);
+		StringBuilder normalizedUrl = new StringBuilder();
+		normalizedUrl.append(scheme).append("://").append(host);
+		if (uri.getPort() != -1) {
+			normalizedUrl.append(":").append(req.getServerPort());
+		}
+		normalizedUrl.append(path);
+		if (query != null) {
+			normalizedUrl.append("?").append(query);
+		}
+		if (fragment != null) {
+			normalizedUrl.append("#").append(fragment);
+		}
 
-		return normalizedUri.toString();
+		return normalizedUrl.toString();
 	}
 }

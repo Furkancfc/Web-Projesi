@@ -1,18 +1,16 @@
 package model;
 
+import java.net.URLEncoder;
 import java.time.*;
-import jakarta.persistence.*;
 import java.util.*;
 
 import model.interfaces.ICart;
-import webapp.MainDispatcher;
 
 public class Cart implements ICart {
 
 	private static final long serialVersionUID = 1L;
 	private String cartId;
-	private String userId;
-	public Map<String, CartItem> items;
+	private Map<String, CartItem> items;
 	public Instant lastUpdate;
 
 	public void setCartId(String cartId) {
@@ -34,12 +32,15 @@ public class Cart implements ICart {
 	public Cart(String userId) {
 		this.lastUpdate = Instant.now();
 		this.items = new TreeMap<String, CartItem>();
-		this.cartId = MainDispatcher.createRandomId();
-		this.userId = userId;
+		this.cartId = userId;
 	}
 
-	public Map<String, CartItem> getItems() {
-		return items;
+	public Collection<CartItem> getItems() {
+		return items.values();
+	}
+
+	public Set<String> getItemIds() {
+		return items.keySet();
 	}
 
 	public CartItem deleteItem(String itemId) {
@@ -47,6 +48,11 @@ public class Cart implements ICart {
 	}
 
 	public CartItem addItem(CartItem item) {
+		CartItem c;
+		if ((c = this.items.get(item.getItemId())) != null) {
+			c.increment();
+			return c;
+		}
 		return this.items.put(item.getItemId(), item);
 	}
 
@@ -82,12 +88,7 @@ public class Cart implements ICart {
 		return this.cartId;
 	}
 
-	public String getUserId() {
-		return userId;
+	public String getURL() {
+		return URLEncoder.encode(getCartId());
 	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-
 }

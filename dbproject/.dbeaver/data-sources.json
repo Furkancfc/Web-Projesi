@@ -18,8 +18,14 @@
 					"rewriteBatchedStatements": "true",
 					"enabledTLSProtocols": "TLSv1,TLSv1.1,TLSv1.2,TLSv1.3"
 				},
-				"auth-model": "native",
-				"handlers": {}
+				"auth-model": "native"
+			},
+			"custom-properties": {
+				"valueManager.webproject2.Account:cart": "json",
+				"valueManager.webproject2.Account:obj": "binary",
+				"valueManager.webproject2.Account:orders": "binary",
+				"valueManager.webproject2.Item:imageURIs": "binary",
+				"valueManager.webproject2.Item:obj": "binary"
 			}
 		}
 	},

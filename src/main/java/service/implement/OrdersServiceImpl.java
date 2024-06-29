@@ -3,36 +3,48 @@ package service.implement;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import dao.implement.OrdersDaoImpl;
+import dao.implement.UserDaoImpl;
 import model.Orders;
-import model.Orders.Order;
+import model.Account;
+import model.Order;
 
 public class OrdersServiceImpl extends service.interfaces.OrdersService {
 	@Autowired
 	private OrdersDaoImpl ordersDao;
+	@Autowired
+	private UserDaoImpl userDao;
 
-	@Override
 	public Orders getOrders(String ordersId) {
-		return ordersDao.getOrders(ordersId);
+		Account u = userDao.getAccount(ordersId);
+		if (u != null) {
+			Orders o = ordersDao.getOrders(ordersId);
+			if (o != null)
+				return o;
+			else if (u.getOrders() != null) {
+				ordersDao.create(u.getOrders());
+				return u.getOrders();
+			} else {
+				return null;
+			}
+		}
+		return null;
 	}
 
-	@Override
 	public void deleteOrders(String ordersId) {
 		ordersDao.deleteOrders(ordersId);
 	}
 
-	@Override
 	public void deleteOrder(String ordersId, String orderId) {
 		ordersDao.deleteOrder(ordersId, orderId);
 	}
 
-	@Override
 	public Orders createOrders(Orders orders) {
 		return ordersDao.createOrders(orders);
 	}
 
-	@Override
-	public Orders addOrder(String ordersId, Order order) {
-		return ordersDao.addOrder(ordersId, order);
+	public Orders addOrder(String ordersId, model.Order o) {
+		Orders orders = getOrders(ordersId);
+		return ordersDao.addOrder(orders, o);
 	}
 
 }
