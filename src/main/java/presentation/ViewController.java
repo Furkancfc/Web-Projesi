@@ -18,9 +18,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import model.Account;
+import model.Cart;
 import model.CartItem;
 import model.Category;
 import model.Item;
+import model.Orders;
 import webapp.*;
 
 @MultipartConfig
@@ -182,6 +184,34 @@ public class ViewController {
 
 	@Controller
 	class IndexController {
+		@PostMapping(path = "/CustomerPage/Checkout")
+		public void takeOrder(HttpSession session, RequestWrapper req, HttpServletResponse resp) {
+			String payment_method = (String) req.getParameter("payment-method");
+			String cartId = (String) req.getParameter("cartId");
+			String cartItemId = (String) req.getParameter("cartItemId");
+			Cart c = cartService.getCart(cartId);
+			String userId = (String) session.getAttribute("userId");
+			if (userId != null) {
+				if (cartItemId == null) { // add orders to every item
+
+					c.getItems().forEach(x -> {
+						Item i = itemService.getItem(x.getItemId());
+						model.Order o = new model.Order(x, i.getPrice(), payment_method);
+						ordersService.addOrder(userId, o);
+						redirect("/CustomerPage/Orders", req, resp);
+					});
+				} else { // add orders to cartItem
+					CartItem ci = c.getItem(cartItemId);
+					Item i = itemService.getItem(cartItemId);
+					model.Order o = new model.Order(ci, i.getPrice(), payment_method);
+					ordersService.addOrder(userId, o);
+					redirect("/CustomerPage/Orders", req, resp);
+				}
+			} else {
+				redirect("/login", req, resp);
+			}
+		}
+
 		public void addToCart(HttpSession session, RequestWrapper req, HttpServletResponse resp) {
 			String userId = (String) session.getAttribute("userId");
 			if (userId == null) {
@@ -197,7 +227,7 @@ public class ViewController {
 			} else {
 				redirect("/CustomerPage/", req, resp);
 			}
-			redirect("/CustomerPage/", req, resp);
+			redirect("/CustomerPage/Cart", req, resp);
 		}
 
 		@GetMapping(path = { "/", "/CustomerPage/**" })
@@ -212,9 +242,36 @@ public class ViewController {
 				return;
 			}
 			if (req.getRequestURL().toString().contains(req.getContextPath() + "/CustomerPage/Cart")) {
-				if (session.getAttribute("userId") != null)
+				if (session.getAttribute("userId") != null) {
 					req.setAttribute("cart", cartService.getCart((String) session.getAttribute("userId")));
-				else {
+					forward("/CustomerPage/Cart", "/jsp/CustomerPage/layout.jsp", req, resp);
+					return;
+				} else {
+					redirect("/login", req, resp);
+					return;
+				}
+			}
+			if (req.getRequestURL().toString().contains(req.getContextPath() + "/CustomerPage/Checkout")) {
+				if (session.getAttribute("userId") != null) {
+					req.setAttribute("cart", cartService.getCart((String) session.getAttribute("userId")));
+					if (req.getParameter("cartId") != null) {
+						forward("/CustomerPage/Checkout", "/jsp/CustomerPage/layout.jsp", req, resp);
+						return;
+					} else {
+						redirect("/CustomerPage/Cart", req, resp);
+						return;
+					}
+				} else {
+					redirect("/login", req, resp);
+					return;
+				}
+			}
+			if (req.getRequestURL().toString().contains(req.getContextPath() + "/CustomerPage/Orders")) {
+				if (session.getAttribute("userId") != null) {
+					req.setAttribute("orders", ordersService.getOrders((String) session.getAttribute("userId")));
+					forward("/CustomerPage/Orders", "/jsp/CustomerPage/layout.jsp", req, resp);
+					return;
+				} else {
 					redirect("/login", req, resp);
 					return;
 				}

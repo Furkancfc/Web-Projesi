@@ -9,23 +9,23 @@
 					<th>ID</th>
 					<th>Product Id</th>
 					<th>Quantity</th>
-					<th>Total</th>
+					<th>Order Amount</th>
 				</tr>
-
 			</thead>
 			<tbody id="order-table-body">
 				<c:forEach var='user' items="${userService.getUsers()}">
-					<h1>${user.getUserName()}'sOrders</h1>
-					<c:forEach var='orders'
-						items='${ordersService.getOrders(user.getOrdersId())}'>
-						<th>User Orders List Id : ${orders.getOrdersId()}</th>
-						<c:forEach var="order" items="${orders.getOrders()}">
-							<td>${order.getOrderId()}</td>
-							<td>${order.getOrderId()}</td>
-							<td>${order.getCartItem().getItemCount() }</td>
-						</c:forEach>
-						<tr>
-						</tr>
+					<th>${user.getUserName()}'sOrders</th>
+					<c:set var='userorders'
+						value='${ordersService.getOrders(user.getUserId())}' />
+					<tr>
+						<th>User</th>
+						<th>${userorders.getOrdersId()}</th>
+					</tr>
+					<c:forEach var="order" items="${userorders.getOrders().values()}"> <!--  treeMap tan value lar alinir -->
+						<td>${order.getOrderId()}</td>
+						<td>${order.getCartItem().getItemId()}</td>
+						<td>${order.getCartItem().getItemCount()}</td>
+						<td>${order.getPrice()}</td>
 					</c:forEach>
 				</c:forEach>
 			</tbody>

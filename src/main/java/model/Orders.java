@@ -13,34 +13,6 @@ public class Orders implements IOrders {
 	private static final long serialVersionUID = 1L;
 	private String ordersId;
 	private Map<String, Order> orders;
-	public class Order {
-		private String orderId;
-		private Instant purchaseTime;
-		private CartItem cartItem;
-		private String price;
-
-		public Order(CartItem ci, String price) {
-			this.orderId = ci.getCartItemId();
-			this.purchaseTime = Instant.now();
-			this.price = price;
-		}
-
-		public CartItem getCartItem() {
-			return cartItem;
-		}
-
-		public String getOrderId() {
-			return orderId;
-		}
-
-		public String getPrice() {
-			return price;
-		}
-
-		public Instant getPurchaseTime() {
-			return purchaseTime;
-		}
-	}
 
 	public Orders(String userId) {
 		this.ordersId = userId;
@@ -67,8 +39,12 @@ public class Orders implements IOrders {
 		return orders.get(cartItemId);
 	}
 
-	public void addOrder(CartItem ci,String price) {
-		orders.put(ci.getCartItemId(), new Order(ci, price));
+	public void addOrder(Order o) {
+		orders.put(o.getCartItem().getCartItemId(), o);
+	}
+
+	public void addOrder(CartItem ci, Double price, String paymentMethod) {
+		orders.put(ci.getItemId(), new Order(ci, price, paymentMethod));
 	}
 
 	public Order removeOrder(String cartItemId) {

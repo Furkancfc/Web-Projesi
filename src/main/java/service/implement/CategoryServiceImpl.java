@@ -1,4 +1,4 @@
- package service.implement;
+package service.implement;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +20,6 @@ public class CategoryServiceImpl extends service.interfaces.CategoryService {
 		super();
 	}
 
-	@Override
 	public void addCategory(Category category) {
 		categoryDao.addCategory(category);
 	}

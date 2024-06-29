@@ -21,6 +21,19 @@ public class CartServiceImpl extends service.interfaces.CartService {
 	@Autowired
 	dao.implement.UserDaoImpl userDao;
 
+	public CartItem getCartItem(String cartId, String cartItemId) {
+		if (userDao.getAccount(cartId) != null) {
+			Cart c = cartDao.getCart(cartId);
+			if (c != null) {
+				CartItem ci = c.getItem(cartItemId);
+				if (ci != null) {
+					return ci;
+				}
+			}
+		}
+		return null;
+	}
+
 	public Cart getCart(String cartId) {
 		if (userDao.getAccount(cartId) != null) {
 			Cart c = cartDao.getCart(cartId);

@@ -15,7 +15,7 @@ import io.micrometer.common.lang.NonNull;
 import model.Account;
 import model.CartItem;
 import model.Orders;
-import model.Orders.Order;
+import model.Order;
 import model.interfaces.IGeneric;
 
 public abstract class OrdersDao extends Dao<model.Orders> {
@@ -74,7 +74,7 @@ public abstract class OrdersDao extends Dao<model.Orders> {
 		});
 	}
 
-	public class OrderMapper implements RowMapper<model.Orders> {
+	public class OrdersMapper implements RowMapper<model.Orders> {
 
 		@Override
 		public Orders mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
@@ -83,18 +83,17 @@ public abstract class OrdersDao extends Dao<model.Orders> {
 				return order;
 			} else if (rs.getRow() > 0 || rs.next()) {
 				String ordersId = rs.getString("ordersId");
-				String userId = rs.getString("userId");
-				Map<String, Order> orders = (Map<String, Order>) IGeneric.getInstance(rs.getBytes("ordersList"));
-				if(orders == null){
-					orders = new TreeMap<String,Orders.Order>();
+				Map<String, model.Order> orders = (Map<String, model.Order>) IGeneric
+						.getInstance(rs.getBytes("ordersList"));
+				if (orders == null) {
+					orders = new TreeMap<String, model.Order>();
 				}
-				order = new Orders(userId);
+				order = new Orders(ordersId); // ordersId aslinda UserId
 				order.setOrders(orders);
-				order.setOrdersId(ordersId);
 				update(order);
 				return order;
 			} else {
-				return order;
+				return null;
 			}
 		}
 

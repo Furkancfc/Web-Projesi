@@ -27,8 +27,8 @@ if (session == null || session.getAttribute("userId") == null)
 				<div id="chechkout-div">
 					<p>Total Price :
 						${cartService.calculateCartPrice(cart.getCartId())}</p>
-					<button class='btn btn-primary' id='accept-checkout'
-						href="<%= request.getContextPath() %>/CustomerPageCheckout?cartId=${cart.getURL()}">Accept</button>
+					<a class='btn btn-primary' id='accept-checkout'
+						href="<%= request.getContextPath() %>/CustomerPage/Checkout?cartId=${cart.getURL()}">Accept</a>
 					<button class='btn btn-danger' id="cancel-checkout">Cancel</button>
 				</div>
 			</c:when>

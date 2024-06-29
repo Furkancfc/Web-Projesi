@@ -39,6 +39,8 @@
 						href="<%=request.getContextPath()%>/CustomerPage/Contact">Contact</a></li>
 					<li><a href="<%=request.getContextPath()%>/CustomerPage/Cart">Cart<i
 							class="fas fa-shopping-cart"></i></a></li>
+					<li><a
+						href="<%=request.getContextPath()%>/CustomerPage/Orders">Orders</a></li>
 					<%
 					if (session == null || session != null && session.getAttribute("userId") == null) {
 					%>

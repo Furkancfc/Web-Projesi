@@ -11,6 +11,7 @@ import org.springframework.lang.Nullable;
 
 import com.mysql.cj.x.protobuf.MysqlxCrud.Order;
 
+import model.CartItem;
 import model.Orders;
 import model.interfaces.IGeneric;
 
@@ -22,9 +23,16 @@ public class OrdersDaoImpl extends dao.interfaces.OrdersDao {
 		return update(o);
 	}
 
-	public Orders addOrder(String ordersId, model.Orders.Order order) {
+	public Orders addOrder(Orders o, model.Order order) {
+		if (o == null)
+			return null;
+		o.addOrder(order);
+		return update(o);
+	}
+
+	public Orders addOrder(String ordersId, CartItem ci, Double price, String payment_Method) {
 		Orders o = getOrders(ordersId);
-		o.setOrder(order);
+		o.addOrder(ci, price, payment_Method);
 		return update(o);
 	}
 
@@ -34,10 +42,10 @@ public class OrdersDaoImpl extends dao.interfaces.OrdersDao {
 			public Orders doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
 				ps.setString(1, ordersId);
 				ResultSet rs = ps.executeQuery();
-				if(rs.next()){
-				return new OrderMapper().mapRow(rs, rs.getRow());
-				}else
-				return null;
+				if (rs.getRow() > 0 || rs.next()) {
+					return new OrdersMapper().mapRow(rs, rs.getRow());
+				} else
+					return null;
 			}
 		});
 	}
